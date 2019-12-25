@@ -9,4 +9,3 @@ edition = "2018"
 [dependencies]
 strsim = "0.9.3"
 regex = "1"
-fasthash = "0.4"

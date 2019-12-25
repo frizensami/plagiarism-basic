@@ -2,7 +2,7 @@ mod plagiarism_database;
 mod string_compare;
 mod text_utils;
 
-use string_compare::is_plagiarised;
+use plagiarism_database::PlagiarismDatabase;
 
 /// Overall strategy:
 ///     Take all input texts and for each:
@@ -25,4 +25,12 @@ const TEXT1: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, se
 
 const TEXT2: &str = "enim ad minim veniam, quis nostrud";
 
-fn main() {}
+fn main() {
+    let n = 5;
+    let s = 0;
+    let metric = Metric::Equal;
+    let mut db = PlagiarismDatabase::new(n, s, metric);
+    db.add_untrusted_text("t1".to_string(), TEXT1);
+    db.add_untrusted_text("t2".to_string(), TEXT2);
+    db.check_untrusted_plagiarism();
+}
