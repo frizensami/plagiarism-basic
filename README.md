@@ -11,16 +11,15 @@
 Informally, two strings that are long enough and with the same number of words that are "similar enough" by a chosen metric are considered to be plagiarised. 
 
 Formally:
-- Two separate strings (`s1` and `s1`) consisting of words (a sequence of characters without a space)  
-- Both with `l` words (i.e. `|s1| = |s2| = l`)
+- Two separate strings (`s1` and `s1`) consisting of words (a sequence of characters without a space) are considered plagiarised if: 
+- Both have `l` words (i.e. `|s1| = |s2| = l`)
     - Where `l` < some chosen *sensitivity value* `n`
 - Where a metric `M` and *similarity value* `s` produces `M(s1, s2) > s`
-- Subject to pre-process removal of
-    - CR + LF
-    - Extra spaces (only one space between words)
+- Subject to pre-processing of
+    - Removing CR + LF
+    - Removing extra spaces (only one space between words)
     - Converting all letters to lowercase
-    - Removing all punctuation
-- Are considered plagiarised
+    - Removing all non alphanumeric characters
 
 ## Choosing n, s and M
 - `n` is a user-chosen value to indicate **how many words** a string needs to be before being considered for plagiarism
