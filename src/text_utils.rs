@@ -2,7 +2,7 @@ use regex::Regex;
 
 /// Extracts lists of consecutive words of list length n from the provided text.
 ///     Cleans the text first.
-pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<Vec<String>> {
+pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
     let cleaned_text = clean_text(text);
     let words : Vec<&str> = cleaned_text.split_whitespace().collect();
     let mut output = Vec::new();
@@ -11,7 +11,7 @@ pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<Vec<String>> {
         for j in 0..n {
             ngram.push(words[i + j].to_string());
         }
-        output.push(ngram);
+        output.push(ngram.join(" "));
     }
     return output
 }
@@ -34,12 +34,12 @@ mod tests {
     fn test_ngram() {
         assert_eq!(
             extract_clean_word_ngrams("mary had a", 2),
-            vec![vec!["mary", "had"], vec!["had", "a"]]
+            vec!["mary had", "had a"]
         );
 
         assert_eq!(
             extract_clean_word_ngrams("    ||| mary\n  @@@@ ....  had a\n\n\n", 2),
-            vec![vec!["mary", "had"], vec!["had", "a"]]
+            vec!["mary had", "had a"]
         );
     }
 
