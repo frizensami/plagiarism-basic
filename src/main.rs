@@ -84,6 +84,7 @@ fn main() {
         db.add_trusted_text(id, &val);
     }
     db.check_untrusted_plagiarism();
+    db.check_trusted_plagiarism();
 }
 
 #[cfg(test)]

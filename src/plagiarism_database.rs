@@ -70,6 +70,22 @@ impl PlagiarismDatabase {
         }
     }
 
+    /// Check for plagiarism by comparing metric against cutoff
+    ///     for textfragments in database against trusted fragments
+    pub fn check_trusted_plagiarism(&self) {
+        println!("\n\nChecking against trusted sources...\n");
+        for i in 0..self.trusted_texts.len() {
+            for j in 0..self.untrusted_texts.len() {
+                let source = &self.untrusted_texts[i];
+                let against = &self.untrusted_texts[j];
+                match self.metric {
+                    Metric::Equal => self.check_plagiarism_equal(source, against),
+                    _ => self.check_plagiarism_other(source, self.metric, against),
+                }
+            }
+        }
+    }
+
     /// Splits a text string into separate ngram TextFragments
     fn get_textfragments(text: &str, n: usize) -> HashSet<String> {
         let ngrams = extract_clean_word_ngrams(text, n);
