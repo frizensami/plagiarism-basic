@@ -4,7 +4,7 @@ use regex::Regex;
 ///     Cleans the text first.
 pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
     let cleaned_text = clean_text(text);
-    let words : Vec<&str> = cleaned_text.split_whitespace().collect();
+    let words: Vec<&str> = cleaned_text.split_whitespace().collect();
     let mut output = Vec::new();
     for i in 0..(words.len() - n + 1) {
         let mut ngram = Vec::new();
@@ -13,7 +13,7 @@ pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
         }
         output.push(ngram.join(" "));
     }
-    return output
+    return output;
 }
 
 /// Removes nonalphanumeric characters, redundant spaces, newlines,

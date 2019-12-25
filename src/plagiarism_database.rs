@@ -54,7 +54,7 @@ impl PlagiarismDatabase {
         );
     }
 
-    /// Splits a text string into separate ngram TextFragments 
+    /// Splits a text string into separate ngram TextFragments
     fn get_textfragments(text: &str, n: usize) -> Vec<TextFragment> {
         let ngrams = extract_clean_word_ngrams(text, n);
         ngrams
