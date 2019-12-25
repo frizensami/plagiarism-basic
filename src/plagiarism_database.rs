@@ -1,6 +1,7 @@
+use crate::string_compare::is_plagiarised;
 use crate::text_utils::extract_clean_word_ngrams;
 use crate::Metric;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::iter::FromIterator;
 
 type TextOwnerID = String;
@@ -58,15 +59,12 @@ impl PlagiarismDatabase {
     ///     for all textfragments currently in database
     pub fn check_untrusted_plagiarism(&self) {
         for i in 0..self.untrusted_texts.len() {
-            for j in (i+1)..self.untrusted_texts.len() {
+            for j in (i + 1)..self.untrusted_texts.len() {
                 let source = &self.untrusted_texts[i];
                 let against = &self.untrusted_texts[j];
-                let intersect: Vec<&String> =
-                    source.fragments.intersection(&against.fragments).collect();
-                if !intersect.is_empty() {
-                    // Plagiarism!
-                    println!("Detected plagiarism between {} and {}! Detected similarities: ", source.owner, against.owner);
-                    println!{"{:?}", intersect}
+                match self.metric {
+                    Metric::Equal => self.check_plagiarism_equal(source, against),
+                    _ => self.check_plagiarism_other(source, self.metric, against),
                 }
             }
         }
@@ -76,5 +74,31 @@ impl PlagiarismDatabase {
     fn get_textfragments(text: &str, n: usize) -> HashSet<String> {
         let ngrams = extract_clean_word_ngrams(text, n);
         HashSet::from_iter(ngrams)
+    }
+
+    fn check_plagiarism_equal(&self, source: &TextEntry, against: &TextEntry) {
+        let intersect: Vec<&String> = source.fragments.intersection(&against.fragments).collect();
+        if !intersect.is_empty() {
+            // Plagiarism!
+            println!(
+                "Detected plagiarism between {} and {}! Detected similarities: ",
+                source.owner, against.owner
+            );
+            println! {"{:?}", intersect}
+        }
+    }
+
+    fn check_plagiarism_other(&self, source: &TextEntry, metric: Metric, against: &TextEntry) {
+        for source_frag in source.fragments.iter() {
+            for against_frag in against.fragments.iter() {
+                if is_plagiarised(source_frag, against_frag, metric, self.s) {
+                    println!(
+                        "Detected plagiarism between {} and {}! Detected similarity: \n",
+                        source.owner, against.owner
+                    );
+                    println!("Fragment 1: {}\nFragment 2: {}\n\n", source_frag, against_frag)
+                }
+            }
+        }
     }
 }

@@ -26,5 +26,4 @@ Formally:
 - `s` is a user-chosen value to indicate **how similar** the strings have to be before being considered for plagiarism
 - `M` is the metric used to evaluate the strings for similarity. They can be one of the following
     - `equal`: checks if the strings are equal, ignores `s` value
-    - `hamming`: uses the Hamming distance between the words, uses the `s` value
     - `lev`: uses the Levenshtein distance between the words, uses the `s` value

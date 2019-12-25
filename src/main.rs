@@ -17,10 +17,10 @@ use clap::{Arg, App};
 ///         - collect into vector
 ///         - take all l-length word sequences and join them
 ///         - Hash all these word sequences and provide those as well
-
+/// 
+#[derive(Copy, Clone)]
 pub enum Metric {
     Equal,
-    Hamming,
     Lev,
 }
 
@@ -41,10 +41,10 @@ fn main() {
                 .required(true))
         .arg(Arg::with_name("metric")
                 .short("m")
-                .help("Sets the metric (function) used for similarity testing. Equal checks that both strings are equal, hamming uses the Hamming function, and lev uses the Levenshtein distance")
+                .help("Sets the metric (function) used for similarity testing. Equal checks that both strings are equal, and lev uses the Levenshtein distance")
                 .takes_value(true)
                 .required(true)
-                .possible_values(&["equal", "hamming", "lev"]))
+                .possible_values(&["equal", "lev"]))
         .arg(Arg::with_name("sensitivity")
                 .short("n")
                 .help("Sets the number of words required to form a unit of plagiarism checking")
@@ -64,7 +64,6 @@ fn main() {
     let metricarg : &str = matches.value_of("metric").unwrap();
     let metric : Metric = match metricarg {
         "equal" => Metric::Equal,
-        "hamming" => Metric::Hamming,
         "lev" => Metric::Lev,
         _ => panic!("Incorrect metric argument given!")
     };
