@@ -16,6 +16,8 @@ pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
     return output
 }
 
+/// Removes nonalphanumeric characters, redundant spaces, newlines,
+///     converts to lowecase and trims text
 fn clean_text(text: &str) -> String {
     let remove_nonalpha = Regex::new(r"[^A-Za-z0-9 ]").unwrap();
     let remove_spaces = Regex::new(r"\s+").unwrap();
