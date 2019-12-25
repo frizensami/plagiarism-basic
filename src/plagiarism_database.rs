@@ -76,7 +76,7 @@ impl PlagiarismDatabase {
         println!("\n\nChecking against trusted sources...\n");
         for i in 0..self.trusted_texts.len() {
             for j in 0..self.untrusted_texts.len() {
-                let source = &self.untrusted_texts[i];
+                let source = &self.trusted_texts[i];
                 let against = &self.untrusted_texts[j];
                 match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
@@ -97,10 +97,10 @@ impl PlagiarismDatabase {
         if !intersect.is_empty() {
             // Plagiarism!
             println!(
-                "Detected plagiarism between {} and {}! Detected similarities: ",
+                "\nDetected plagiarism between {} and {}! Detected EQUALITY: ",
                 source.owner, against.owner
             );
-            println! {"{:?}", intersect}
+            println! {"{:?}\n", intersect}
         }
     }
 
