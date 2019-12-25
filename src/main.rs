@@ -1,9 +1,11 @@
 mod plagiarism_database;
 mod string_compare;
 mod text_utils;
+mod file_utils;
 
 use plagiarism_database::PlagiarismDatabase;
-use clap::{Arg, App, SubCommand};
+use file_utils::get_file_contents_from_dir;
+use clap::{Arg, App};
 
 /// Overall strategy:
 ///     Take all input texts and for each:
@@ -22,17 +24,21 @@ pub enum Metric {
     Lev,
 }
 
-const TEXT1: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
-
-const TEXT2: &str = "enim ad minim veniam, quis nostrud";
-
 fn main() {
-;
-
     let app = App::new("Basic Plagiarism Checker")
         .about("Checks for plagiarism using very basic metrics between different text files")
         .version("v0.1")
         .author("Sriram Sami (@frizensami on GitHub)")
+        .arg(Arg::with_name("untrusted-directory")
+                .short("u")
+                .help("Sets the directory containing untrusted text files. Each file will be treated as a separate submission by a separate person.")
+                .takes_value(true)
+                .required(true))
+        .arg(Arg::with_name("trusted-directory")
+                .short("t")
+                .help("Sets the directory containing trusted text files. Each file will be treated as a separate possible plagiarism source text.")
+                .takes_value(true)
+                .required(true))
         .arg(Arg::with_name("metric")
                 .short("m")
                 .help("Sets the metric (function) used for similarity testing. Equal checks that both strings are equal, hamming uses the Hamming function, and lev uses the Levenshtein distance")
@@ -51,6 +57,7 @@ fn main() {
                 .takes_value(true)
                 .required(true));
 
+    // Get options for algorithm
     let matches = app.get_matches();
     let n : usize = matches.value_of("sensitivity").unwrap().parse().unwrap();
     let s : usize = matches.value_of("similarity").unwrap().parse().unwrap();
@@ -62,8 +69,28 @@ fn main() {
         _ => panic!("Incorrect metric argument given!")
     };
 
+    // Get info from directories
+    let udir : &str = matches.value_of("untrusted-directory").unwrap();
+    let tdir : &str = matches.value_of("trusted-directory").unwrap();
+    let untrusted_contents = get_file_contents_from_dir(udir).unwrap();
+    let trusted_contents = get_file_contents_from_dir(tdir).unwrap();
+
+    // Add text to the DB
     let mut db = PlagiarismDatabase::new(n, s, metric);
-    db.add_untrusted_text("t1".to_string(), TEXT1);
-    db.add_untrusted_text("t2".to_string(), TEXT2);
+
+    for (id, val) in untrusted_contents {
+        db.add_untrusted_text(id, &val);
+    }
+    for (id, val) in trusted_contents {
+        db.add_trusted_text(id, &val);
+    }
     db.check_untrusted_plagiarism();
+}
+
+#[cfg(test)]
+mod tests{
+    #[test]
+    fn test_equal() {
+        assert!(true);
+    }
 }
