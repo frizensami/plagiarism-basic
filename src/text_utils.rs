@@ -6,6 +6,11 @@ pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
     let cleaned_text = clean_text(text);
     let words: Vec<&str> = cleaned_text.split_whitespace().collect();
     let mut output = Vec::new();
+    // No way to find plagiarism if chunk size > # words
+    if n > words.len() {
+        return Vec::new();
+    }
+
     for i in 0..(words.len() - n + 1) {
         let mut ngram = Vec::new();
         for j in 0..n {

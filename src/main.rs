@@ -3,6 +3,7 @@ mod string_compare;
 mod text_utils;
 
 use plagiarism_database::PlagiarismDatabase;
+use clap::{Arg, App, SubCommand};
 
 /// Overall strategy:
 ///     Take all input texts and for each:
@@ -26,9 +27,41 @@ const TEXT1: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, se
 const TEXT2: &str = "enim ad minim veniam, quis nostrud";
 
 fn main() {
-    let n = 5;
-    let s = 0;
-    let metric = Metric::Equal;
+;
+
+    let app = App::new("Basic Plagiarism Checker")
+        .about("Checks for plagiarism using very basic metrics between different text files")
+        .version("v0.1")
+        .author("Sriram Sami (@frizensami on GitHub)")
+        .arg(Arg::with_name("metric")
+                .short("m")
+                .help("Sets the metric (function) used for similarity testing. Equal checks that both strings are equal, hamming uses the Hamming function, and lev uses the Levenshtein distance")
+                .takes_value(true)
+                .required(true)
+                .possible_values(&["equal", "hamming", "lev"]))
+        .arg(Arg::with_name("sensitivity")
+                .short("n")
+                .help("Sets the number of words required to form a unit of plagiarism checking")
+                .takes_value(true)
+                .required(true))
+
+        .arg(Arg::with_name("similarity")
+                .short("s")
+                .help("Sets the threshold value for plagiarism to be detected by a chosen metric")
+                .takes_value(true)
+                .required(true));
+
+    let matches = app.get_matches();
+    let n : usize = matches.value_of("sensitivity").unwrap().parse().unwrap();
+    let s : usize = matches.value_of("similarity").unwrap().parse().unwrap();
+    let metricarg : &str = matches.value_of("metric").unwrap();
+    let metric : Metric = match metricarg {
+        "equal" => Metric::Equal,
+        "hamming" => Metric::Hamming,
+        "lev" => Metric::Lev,
+        _ => panic!("Incorrect metric argument given!")
+    };
+
     let mut db = PlagiarismDatabase::new(n, s, metric);
     db.add_untrusted_text("t1".to_string(), TEXT1);
     db.add_untrusted_text("t2".to_string(), TEXT2);
