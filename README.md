@@ -1,6 +1,6 @@
 # Basic Plagiarism Detection
 ## Motivation
-Online plagiarism detection tools usually come with a few constraints. Payment could be required, the number of characters to check could be artificially limited, and more. This tool aims to fill a gap where:
+Online plagiarism detection tools usually come with a few constraints. It could be a paid-only service, the number of characters to check could be artificially limited, etc. This tool aims to fill a gap where:
 - Plagiarism cases are usually simple copy-paste jobs of a few phrases with minor edits,
 - Paying for an online tool is unpalatable, and
 - Running a command-line tool is simple enough for the user
@@ -85,7 +85,7 @@ OPTIONS:
 Informally, two strings that are long enough and with the same number of words that are "similar enough" by a chosen metric are considered to be plagiarised. 
 
 Formally:
-- Two separate strings (`s1` and `s1`) consisting of words (a sequence of characters without a space) are considered plagiarised if: 
+- Two separate strings (`s1` and `s2`) consisting of words (a sequence of characters without a space) are considered plagiarised if: 
 - Both have `l` words
     - Where `l` < some user-chosen *sensitivity value* `n`
 - Where a metric `M` and *similarity value* `s` produces `M(s1, s2) <= s`
