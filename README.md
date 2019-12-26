@@ -5,9 +5,11 @@ Online plagiarism detection tools usually come with a few constraints. Payment c
 - Paying for an online tool is unpalatable, and
 - Running a command-line tool is simple enough for the user
 
+## Table of Contents
 <!-- TOC depthFrom:2 -->
 
 - [Motivation](#motivation)
+- [Table of Contents](#table-of-contents)
 - [Project Status (WIP)](#project-status-wip)
 - [Installation](#installation)
 - [Usage](#usage)
