@@ -8,10 +8,10 @@ type TextOwnerID = String;
 
 /// Report for plagiarism between two owners
 pub struct PlagiarismResult {
-    ownerID1: TextOwnerID,
-    ownerID2: TextOwnerID,
-    matchingFragments: Vec<(String, String)>,
-    trustedOwner1: bool, // Is the first owner a trusted source?
+    owner_id1: TextOwnerID,
+    owner_id2: TextOwnerID,
+    matching_fragments: Vec<(String, String)>,
+    trusted_owner1: bool, // Is the first owner a trusted source?
 }
 
 /// A single user's "submission" or text string, broken into fragments
@@ -73,15 +73,15 @@ impl PlagiarismDatabase {
                 let source = &self.untrusted_texts[i];
                 let against = &self.untrusted_texts[j];
 
-                let matchingFragments = match self.metric {
+                let matching_fragments = match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
                     _ => self.check_plagiarism_other(source, self.metric, against),
                 };
                 let result = PlagiarismResult {
-                    ownerID1: source.owner.clone(),
-                    ownerID2: source.owner.clone(),
-                    matchingFragments: matchingFragments,
-                    trustedOwner1: false
+                    owner_id1: source.owner.clone(),
+                    owner_id2: source.owner.clone(),
+                    matching_fragments: matching_fragments,
+                    trusted_owner1: false
                 };
                 results.push(result);
             }
@@ -98,15 +98,15 @@ impl PlagiarismDatabase {
             for j in 0..self.untrusted_texts.len() {
                 let source = &self.trusted_texts[i];
                 let against = &self.untrusted_texts[j];
-                let matchingFragments = match self.metric {
+                let matching_fragments = match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
                     _ => self.check_plagiarism_other(source, self.metric, against),
                 };
                 let result = PlagiarismResult {
-                    ownerID1: source.owner.clone(),
-                    ownerID2: source.owner.clone(),
-                    matchingFragments: matchingFragments,
-                    trustedOwner1: true
+                    owner_id1: source.owner.clone(),
+                    owner_id2: source.owner.clone(),
+                    matching_fragments: matching_fragments,
+                    trusted_owner1: true
                 };
                 results.push(result);
             }
