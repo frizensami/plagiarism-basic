@@ -14,7 +14,7 @@ Formally:
 - Two separate strings (`s1` and `s1`) consisting of words (a sequence of characters without a space) are considered plagiarised if: 
 - Both have `l` words (i.e. `|s1| = |s2| = l`)
     - Where `l` < some chosen *sensitivity value* `n`
-- Where a metric `M` and *similarity value* `s` produces `M(s1, s2) > s`
+- Where a metric `M` and *similarity value* `s` produces `M(s1, s2) <= s`
 - Subject to pre-processing of
     - Removing CR + LF
     - Removing extra spaces (only one space between words)
