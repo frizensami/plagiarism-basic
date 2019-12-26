@@ -8,7 +8,7 @@ pub fn get_file_contents_from_dir(dir: &str) -> io::Result<Vec<(String, String)>
     let mut file_id_contents: Vec<(String, String)> = Vec::new();
     for filepath in filepaths {
 
-        println!("Checking filename {:?}", filepath.file_name());
+        println!("Checking filename {:?}", filepath.file_name().unwrap());
         file_id_contents.push((
             filepath.file_name().unwrap().to_str().unwrap().to_string(),
             fs::read_to_string(filepath).unwrap_or("".to_string())
