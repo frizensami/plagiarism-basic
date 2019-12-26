@@ -1,11 +1,12 @@
+mod file_utils;
 mod plagiarism_database;
+mod result_printer;
 mod string_compare;
 mod text_utils;
-mod file_utils;
 
-use plagiarism_database::PlagiarismDatabase;
+use clap::{App, Arg};
 use file_utils::get_file_contents_from_dir;
-use clap::{Arg, App};
+use plagiarism_database::{PlagiarismDatabase, PlagiarismResult};
 
 /// Overall strategy:
 ///     Take all input texts and for each:
@@ -17,8 +18,8 @@ use clap::{Arg, App};
 ///         - collect into vector
 ///         - take all l-length word sequences and join them
 ///         - Hash all these word sequences and provide those as well
-/// 
-#[derive(Copy, Clone)]
+///
+#[derive(Copy, Clone, PartialEq)]
 pub enum Metric {
     Equal,
     Lev,
@@ -59,18 +60,18 @@ fn main() {
 
     // Get options for algorithm
     let matches = app.get_matches();
-    let n : usize = matches.value_of("sensitivity").unwrap().parse().unwrap();
-    let s : usize = matches.value_of("similarity").unwrap().parse().unwrap();
-    let metricarg : &str = matches.value_of("metric").unwrap();
-    let metric : Metric = match metricarg {
+    let n: usize = matches.value_of("sensitivity").unwrap().parse().unwrap();
+    let s: usize = matches.value_of("similarity").unwrap().parse().unwrap();
+    let metricarg: &str = matches.value_of("metric").unwrap();
+    let metric: Metric = match metricarg {
         "equal" => Metric::Equal,
         "lev" => Metric::Lev,
-        _ => panic!("Incorrect metric argument given!")
+        _ => panic!("Incorrect metric argument given!"),
     };
 
     // Get info from directories
-    let udir : &str = matches.value_of("untrusted-directory").unwrap();
-    let tdir : &str = matches.value_of("trusted-directory").unwrap();
+    let udir: &str = matches.value_of("untrusted-directory").unwrap();
+    let tdir: &str = matches.value_of("trusted-directory").unwrap();
     let untrusted_contents = get_file_contents_from_dir(udir).unwrap();
     let trusted_contents = get_file_contents_from_dir(tdir).unwrap();
 
@@ -83,12 +84,16 @@ fn main() {
     for (id, val) in trusted_contents {
         db.add_trusted_text(id, &val);
     }
-    db.check_untrusted_plagiarism();
-    db.check_trusted_plagiarism();
+
+    // Add all plagiarism results to a vector of results
+    let ut_result: Vec<PlagiarismResult> = db.check_untrusted_plagiarism();
+    let t_result: Vec<PlagiarismResult> = db.check_trusted_plagiarism();
+    result_printer::print_results_ut(ut_result);
+    result_printer::print_results_t(t_result);
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     #[test]
     fn test_equal() {
         assert!(true);

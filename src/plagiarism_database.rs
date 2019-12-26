@@ -8,10 +8,11 @@ type TextOwnerID = String;
 
 /// Report for plagiarism between two owners
 pub struct PlagiarismResult {
-    owner_id1: TextOwnerID,
-    owner_id2: TextOwnerID,
-    matching_fragments: Vec<(String, String)>,
-    trusted_owner1: bool, // Is the first owner a trusted source?
+    pub owner_id1: TextOwnerID,
+    pub owner_id2: TextOwnerID,
+    pub matching_fragments: Vec<(String, String)>,
+    pub trusted_owner1: bool,  // Is the first owner a trusted source?
+    pub equal_fragments: bool, // Can we ignore one element of the tuple?
 }
 
 /// A single user's "submission" or text string, broken into fragments
@@ -77,11 +78,15 @@ impl PlagiarismDatabase {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
                     _ => self.check_plagiarism_other(source, self.metric, against),
                 };
+                if matching_fragments.is_empty() {
+                    continue;
+                }
                 let result = PlagiarismResult {
                     owner_id1: source.owner.clone(),
-                    owner_id2: source.owner.clone(),
+                    owner_id2: against.owner.clone(),
                     matching_fragments: matching_fragments,
-                    trusted_owner1: false
+                    trusted_owner1: false,
+                    equal_fragments: self.metric == Metric::Equal,
                 };
                 results.push(result);
             }
@@ -102,11 +107,15 @@ impl PlagiarismDatabase {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
                     _ => self.check_plagiarism_other(source, self.metric, against),
                 };
+                if matching_fragments.is_empty() {
+                    continue;
+                }
                 let result = PlagiarismResult {
                     owner_id1: source.owner.clone(),
-                    owner_id2: source.owner.clone(),
+                    owner_id2: against.owner.clone(),
                     matching_fragments: matching_fragments,
-                    trusted_owner1: true
+                    trusted_owner1: true,
+                    equal_fragments: self.metric == Metric::Equal,
                 };
                 results.push(result);
             }
@@ -122,34 +131,35 @@ impl PlagiarismDatabase {
 
     /// Checks plagiarism by equality of fragments, uses fast set intersection
     /// Returns a tuple of all matches (second tuple element is identical to first)
-    fn check_plagiarism_equal(&self, source: &TextEntry, against: &TextEntry) -> Vec<(String, String)> {
+    fn check_plagiarism_equal(
+        &self,
+        source: &TextEntry,
+        against: &TextEntry,
+    ) -> Vec<(String, String)> {
         let intersect: Vec<&String> = source.fragments.intersection(&against.fragments).collect();
         if !intersect.is_empty() {
             // Plagiarism!
-            println!(
-                "\nDetected plagiarism between {} and {}! Detected EQUALITY: ",
-                source.owner, against.owner
-            );
-            println! {"{:?}\n", intersect}
-
-            intersect.iter().map(|val| (val.to_string(), val.to_string())).collect()
+            intersect
+                .iter()
+                .map(|val| (val.to_string(), val.to_string()))
+                .collect()
         } else {
-           Vec::new()
+            Vec::new()
         }
     }
 
     /// Checks plagiarism by non-equal metric (string-by-string)
     /// Returns a tuple of all matches (second tuple element is identical to first)
-    fn check_plagiarism_other(&self, source: &TextEntry, metric: Metric, against: &TextEntry) -> Vec<(String, String)> {
+    fn check_plagiarism_other(
+        &self,
+        source: &TextEntry,
+        metric: Metric,
+        against: &TextEntry,
+    ) -> Vec<(String, String)> {
         let mut results: Vec<(String, String)> = Vec::new();
         for source_frag in source.fragments.iter() {
             for against_frag in against.fragments.iter() {
                 if is_plagiarised(source_frag, against_frag, metric, self.s) {
-                    println!(
-                        "Detected plagiarism between {} and {}! Detected similarity: \n",
-                        source.owner, against.owner
-                    );
-                    println!("Fragment 1: {}\nFragment 2: {}\n\n", source_frag, against_frag);
                     results.push((source_frag.to_string(), against_frag.to_string()));
                 }
             }
