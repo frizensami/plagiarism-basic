@@ -8,6 +8,16 @@ use clap::{App, Arg};
 use file_utils::get_file_contents_from_dir;
 use plagiarism_database::{PlagiarismDatabase, PlagiarismResult};
 
+/// Indicates which metric is being used for plagiarism comparison
+#[derive(Copy, Clone, PartialEq)]
+pub enum Metric {
+    /// Check for equality between strings
+    Equal,
+    /// Check that Levenshtein distance between strings is lower than
+    /// a given bound
+    Lev,
+}
+
 /// Overall strategy:
 ///     Take all input texts and for each:
 ///         - Remove newlines
@@ -19,12 +29,6 @@ use plagiarism_database::{PlagiarismDatabase, PlagiarismResult};
 ///         - take all l-length word sequences and join them
 ///         - Hash all these word sequences and provide those as well
 ///
-#[derive(Copy, Clone, PartialEq)]
-pub enum Metric {
-    Equal,
-    Lev,
-}
-
 fn main() {
     let app = App::new("Basic Plagiarism Checker")
         .about("Checks for plagiarism using very basic metrics between different text files")
