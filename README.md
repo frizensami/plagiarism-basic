@@ -2,7 +2,8 @@
 ## Motivation
 Online plagiarism detection tools usually come with a few constraints. It could be a paid-only service, the number of characters to check could be artificially limited, etc. This tool aims to fill a gap where:
 - Plagiarism cases are usually simple copy-paste jobs of a few phrases with minor edits,
-- Paying for an online tool is unpalatable, and
+- Paying for an online tool is unpalatable,
+- The source texts that might be copied from can be put together manually by the user into a few files (i.e. no automatic searching by the tool is done across the Internet) and/or the only concern is people copying from each other, and
 - Running a command-line tool is simple enough for the user
 
 ## Table of Contents
@@ -14,7 +15,8 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 - [Project Objectives](#project-objectives)
     - [Hard Objectives](#hard-objectives)
     - [Soft (Optimization) Objectives](#soft-optimization-objectives)
-- [Project Status (WIP)](#project-status-wip)
+    - [Anti-Objectives](#anti-objectives)
+- [Project Status](#project-status)
 - [Installation](#installation)
     - [Binary Release](#binary-release)
     - [Building from source](#building-from-source)
@@ -37,7 +39,10 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 1. Minimizing false positive and false negative detection rates
 2. Fastest possible detection speed without compromising objective 1.
 
-## Project Status (WIP)
+### Anti-Objectives
+- The project does not aim to search the automatically Internet for potential plagiarism sources. These sources have to be assembled by users manually into text files in the `trusted` folder.
+
+## Project Status
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
 - The `lev` metric is too slow for large datasets, but promises more fine-grained control over how different two phrases can be.
 - The current output format is very basic and hard to read. It is a project priority.
