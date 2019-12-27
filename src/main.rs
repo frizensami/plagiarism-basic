@@ -91,11 +91,3 @@ fn main() {
     result_printer::print_results_ut(ut_result);
     result_printer::print_results_t(t_result);
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_equal() {
-        assert!(true);
-    }
-}
