@@ -3,7 +3,7 @@
 Online plagiarism detection tools usually come with a few constraints. It could be a paid-only service, the number of characters to check could be artificially limited, etc. This tool aims to fill a gap where:
 - Plagiarism cases are usually simple copy-paste jobs of a few text phrases with minor edits,
 - Paying for an online tool is unpalatable,
-- The source texts that might be copied from can be put together manually by the user into a few files (i.e. the Internet is not automatically searched by the tool) and/or the only concern is people copying from each other, and
+- The source texts that might be copied from can be put together manually by the user into a few files (i.e. the Internet is not automatically searched by the tool), or the only concern is people copying from each other, and
 - Running a command-line tool is simple enough for the user
 
 ## Table of Contents
