@@ -1,12 +1,14 @@
 use crate::string_compare::is_plagiarised;
 use crate::text_utils::extract_clean_word_ngrams;
 use crate::Metric;
+use serde::Serialize;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
 type TextOwnerID = String;
 
 /// Report for plagiarism between two owners
+#[derive(Serialize)]
 pub struct PlagiarismResult {
     pub owner_id1: TextOwnerID,
     pub owner_id2: TextOwnerID,

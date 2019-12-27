@@ -1,7 +1,7 @@
 use crate::plagiarism_database::PlagiarismResult;
 
 /// Print all untrusted results
-pub fn print_results_ut(mut results: Vec<PlagiarismResult>) {
+pub fn print_results_ut(results: &mut Vec<PlagiarismResult>) {
     results.sort_by(|a, b| {
         b.matching_fragments
             .len()
@@ -19,7 +19,7 @@ pub fn print_results_ut(mut results: Vec<PlagiarismResult>) {
     println!("\n\t===== END UNTRUSTED COMPARISON REPORT ===== \n");
 }
 
-pub fn print_results_t(mut results: Vec<PlagiarismResult>) {
+pub fn print_results_t(results: &mut Vec<PlagiarismResult>) {
     results.sort_by(|a, b| {
         b.matching_fragments
             .len()
@@ -37,13 +37,13 @@ pub fn print_results_t(mut results: Vec<PlagiarismResult>) {
     println!("\n\t**** END UNTRUSTED COMPARISON REPORT **** \n");
 }
 
-fn print_result(result: PlagiarismResult) {
+fn print_result(result: &PlagiarismResult) {
     if result.equal_fragments {
-        for matching_fragment in result.matching_fragments {
+        for matching_fragment in &result.matching_fragments {
             println!("Identical fragment detected: {}", matching_fragment.0)
         }
     } else {
-        for matching_fragment in result.matching_fragments {
+        for matching_fragment in &result.matching_fragments {
             println!(
                 "Similar fragments detected: {}\nVS\n{}",
                 matching_fragment.0, matching_fragment.1

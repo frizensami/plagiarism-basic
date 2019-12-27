@@ -1,5 +1,6 @@
 mod file_utils;
 mod plagiarism_database;
+mod result_output_html;
 mod result_printer;
 mod string_compare;
 mod text_utils;
@@ -90,8 +91,10 @@ fn main() {
     }
 
     // Add all plagiarism results to a vector of results
-    let ut_result: Vec<PlagiarismResult> = db.check_untrusted_plagiarism();
-    let t_result: Vec<PlagiarismResult> = db.check_trusted_plagiarism();
-    result_printer::print_results_ut(ut_result);
-    result_printer::print_results_t(t_result);
+    let mut ut_result: Vec<PlagiarismResult> = db.check_untrusted_plagiarism();
+    let mut t_result: Vec<PlagiarismResult> = db.check_trusted_plagiarism();
+    result_printer::print_results_ut(&mut ut_result);
+    result_printer::print_results_t(&mut t_result);
+    ut_result.append(&mut t_result);
+    result_output_html::output_results(&mut ut_result);
 }
