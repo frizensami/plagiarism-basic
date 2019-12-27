@@ -16,6 +16,8 @@ Online plagiarism detection tools usually come with a few constraints. It could 
     - [Soft (Optimization) Objectives](#soft-optimization-objectives)
 - [Project Status (WIP)](#project-status-wip)
 - [Installation](#installation)
+    - [Binary Release](#binary-release)
+    - [Building from source](#building-from-source)
 - [Usage](#usage)
 - [Technical Details](#technical-details)
     - [Defining Plagiarism](#defining-plagiarism)
@@ -41,7 +43,10 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 - The current output format is very basic and hard to read. It is a project priority.
 
 ## Installation
-Currently, only building from the source code is supported. 
+### Binary Release
+Download a binary from the [Releases](https://github.com/frizensami/plagiarism-basic/releases/) page. Currently only `x86_64-unknown-linux-gnu` targets are supported. 
+
+### Building from source
 1. Install the `rust` language toolchain (https://www.rust-lang.org/tools/install).
 1. `git clone` this repository to a folder of your choice.
 1. Run `cargo build --release` in that folder.
