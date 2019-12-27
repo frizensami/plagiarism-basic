@@ -10,18 +10,30 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 
 - [Motivation](#motivation)
 - [Table of Contents](#table-of-contents)
-- [Project Status (WIP)](#project-status-wip)
-- [Installation](#installation)
-- [Usage](#usage)
 - [Definitions](#definitions)
 - [Project Objectives](#project-objectives)
     - [Hard Objectives](#hard-objectives)
     - [Soft (Optimization) Objectives](#soft-optimization-objectives)
+- [Project Status (WIP)](#project-status-wip)
+- [Installation](#installation)
+- [Usage](#usage)
 - [Technical Details](#technical-details)
     - [Defining Plagiarism](#defining-plagiarism)
     - [Choosing n, s and M](#choosing-n-s-and-m)
 
 <!-- /TOC -->
+## Definitions
+- Untrusted: Something that might be plagiarised
+- Trusted: Something that is definitely not plagiarised, but might be a source used in plagiarism
+
+## Project Objectives
+### Hard Objectives
+- Detect potential cases of plagiarism between multiple untrusted strings (intra-source plagiarism)
+- Detect potential cases of plagiarism between trusted source strings and untrusted strings (external-source plagiarism)
+
+### Soft (Optimization) Objectives
+1. Minimizing false positive and false negative detection rates
+2. Fastest possible detection speed without compromising objective 1.
 
 ## Project Status (WIP)
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
@@ -67,18 +79,6 @@ OPTIONS:
                                     separate submission by a separate person.
 ```
 
-## Definitions
-- Untrusted: Something that might be plagiarised
-- Trusted: Something that is definitely not plagiarised, but might be a source used in plagiarism
-
-## Project Objectives
-### Hard Objectives
-- Detect potential cases of plagiarism between multiple untrusted strings (intra-source plagiarism)
-- Detect potential cases of plagiarism between trusted source strings and untrusted strings (external-source plagiarism)
-
-### Soft (Optimization) Objectives
-1. Minimizing false positive and false negative detection rates
-2. Fastest possible detection speed without compromising objective 1.
 
 ## Technical Details
 ### Defining Plagiarism
