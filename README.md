@@ -1,7 +1,7 @@
 # Basic Plagiarism Detection
 ## Motivation
 Online plagiarism detection tools usually come with a few constraints. It could be a paid-only service, the number of characters to check could be artificially limited, etc. This tool aims to fill a gap where:
-- Plagiarism cases are usually simple copy-paste jobs of a few phrases with minor edits,
+- Plagiarism cases are usually simple copy-paste jobs of a few text phrases with minor edits,
 - Paying for an online tool is unpalatable,
 - The source texts that might be copied from can be put together manually by the user into a few files (i.e. the Internet is not automatically searched by the tool) and/or the only concern is people copying from each other, and
 - Running a command-line tool is simple enough for the user
@@ -11,6 +11,7 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 
 - [Motivation](#motivation)
 - [Table of Contents](#table-of-contents)
+- [Philosophy](#philosophy)
 - [Definitions](#definitions)
 - [Project Objectives](#project-objectives)
     - [Hard Objectives](#hard-objectives)
@@ -26,6 +27,9 @@ Online plagiarism detection tools usually come with a few constraints. It could 
     - [Choosing n, s and M](#choosing-n-s-and-m)
 
 <!-- /TOC -->
+## Philosophy
+This tool is really only to catch amateur attempts at plagiarism. Whatever your opinion is on plagiarism tools, we can probably agree that lazy copy-paste jobs of chunks of text should probably not be respected. Therefore, this tool is designed to make detecting these situations easier.
+
 ## Definitions
 - Untrusted: Something that might be plagiarised
 - Trusted: Something that is definitely not plagiarised, but might be a source used in plagiarism
@@ -40,7 +44,8 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 2. Fastest possible detection speed without compromising objective 1.
 
 ### Anti-Objectives
-- The project does not aim to search the Internet automatically for potential plagiarism sources. These sources have to be assembled by users manually into text files in the `trusted` folder.
+- The project **does not aim to search the Internet automatically** for potential plagiarism sources. These sources have to be assembled by users manually into text files in the `trusted` folder.
+- This is **not a tool for code plagiarism detection!**. Please refer to [Stanford's MOSS](https://theory.stanford.edu/~aiken/moss/) instead.
 
 ## Project Status
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
