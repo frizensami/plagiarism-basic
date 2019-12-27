@@ -1,6 +1,7 @@
 [package]
 name = "plagiarism-basic"
 version = "0.1.0"
+description = "Basic plagiarism checker written in Rust"
 authors = ["Sriram Sami <frizensami@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -8,6 +9,9 @@ readme = "README.md"
 repository = "https://github.com/frizensami/plagiarism-basic"
 keywords = ["cli", "plagiarism", "wip"]
 categories = ["command-line-utilities"]
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
