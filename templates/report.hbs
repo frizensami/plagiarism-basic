@@ -14,7 +14,7 @@
     <h1 style="text-align: center"> Plagiarism Report </h1>
     <h3 style="text-align: center"> Reports are sorted in decreasing order of level of plagiarism </h3>
     <!-- <script src="js/scripts.js"></script> -->
-    {{#each results}}
+    {{#each this}}
     <hr>
     <h2 style="text-align: center"> Plagiarism report between <u> {{#if this.trusted_owner1}} trusted {{else}} untrusted {{/if}} {{this.owner_id1}} </u> and <u> untrusted {{this.owner_id2}} </u> </h2>
 
@@ -43,8 +43,32 @@
         </thead>
         <tbody>
             <tr>
-                <td style="width: 50%" valign="top"> {{lookup ../texts [owner_id1]}} </td>
-                <td style="width: 50%" valign="top"> {{lookup ../texts [owner_id2]}} </td>
+                <td style="width: 50%" valign="top"> 
+                    {{#each this.text_display1}}
+                        {{#if this.is_bold}}
+                            <strong>
+                        {{/if}}
+
+                        {{this.text}}
+
+                        {{#if this.is_bold}}
+                            </strong>
+                        {{/if}}
+                    {{/each}}
+                </td>
+                <td style="width: 50%" valign="top">  
+                        {{#each this.text_display2}}
+                        {{#if this.is_bold}}
+                            <strong>
+                        {{/if}}
+
+                        {{this.text}}
+
+                        {{#if this.is_bold}}
+                            </strong>
+                        {{/if}}
+                    {{/each}}
+                </td>
             <tr>
             <!--
             {{#if this.equal_fragments}}
