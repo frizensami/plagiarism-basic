@@ -1,11 +1,13 @@
 use crate::string_compare::is_plagiarised;
-use crate::text_utils::extract_clean_word_ngrams;
+use crate::text_utils::{clean_text, extract_clean_word_ngrams};
 use crate::Metric;
 use serde::Serialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
 
 type TextOwnerID = String;
+/// (start index (inclusive), end index (exclusive))
+type FragmentLocation = (usize, usize);
 
 /// Report for plagiarism between two owners
 #[derive(Serialize)]
@@ -20,7 +22,12 @@ pub struct PlagiarismResult {
 /// A single user's "submission" or text string, broken into fragments
 struct TextEntry {
     owner: TextOwnerID,
+    /// Cleaned text (word-by-word) for usage in printing
+    clean_text_words: Vec<String>,
+    /// Unique string fragments in the text
     fragments: HashSet<String>,
+    /// Mapping between fragment strings and where in the text they are located
+    fragment_locations: HashMap<String, Vec<FragmentLocation>>,
 }
 
 /// Stores the corpus of trusted and untrusted strings
@@ -53,17 +60,25 @@ impl PlagiarismDatabase {
 
     /// Adds a text string as potential plagiarism source material
     pub fn add_trusted_text(&mut self, owner_id: String, text: &str) {
+        let clean_text_words = clean_text(text);
+        let (fragments, fragment_locations) = PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
         self.trusted_texts.push(TextEntry {
             owner: owner_id,
-            fragments: PlagiarismDatabase::get_textfragments(text, self.n),
+            clean_text_words,
+            fragments,
+            fragment_locations
         });
     }
 
     // Adds a text string as a potential plagiarized string
     pub fn add_untrusted_text(&mut self, owner_id: String, text: &str) {
+        let clean_text_words = clean_text(text);
+        let (fragments, fragment_locations) = PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
         self.untrusted_texts.push(TextEntry {
             owner: owner_id,
-            fragments: PlagiarismDatabase::get_textfragments(text, self.n),
+            clean_text_words,
+            fragments,
+            fragment_locations
         });
     }
 
@@ -126,9 +141,25 @@ impl PlagiarismDatabase {
     }
 
     /// Splits a text string into separate ngram TextFragments
-    fn get_textfragments(text: &str, n: usize) -> HashSet<String> {
-        let ngrams = extract_clean_word_ngrams(text, n);
-        HashSet::from_iter(ngrams)
+    ///     Also creates the map of fragments -> locations at the same time before 
+    ///     vector location information is lost
+    fn get_textfragments(words: &Vec<String>, n: usize) -> (HashSet<String>, HashMap<String, Vec<FragmentLocation>>) {
+        let ngrams = extract_clean_word_ngrams(words, n);
+        let mut fragment_locations: HashMap<String, Vec<FragmentLocation>> = HashMap::new();
+        let mut start_location = 0;
+        // Insert all ngrams into hashmap of ngram locations
+        // Handle both the case with no key (new vec) and existing key (push)
+        for ngram in &ngrams {
+            if fragment_locations.contains_key(ngram) {
+                fragment_locations.get_mut(ngram).unwrap().push((start_location, start_location + n));
+            } else {
+                let mut loc_vec: Vec<FragmentLocation> = Vec::new();
+                loc_vec.push((start_location, start_location + n));
+                fragment_locations.insert(ngram.to_string(), loc_vec);
+            }
+            start_location += 1;
+        }
+        (HashSet::from_iter(ngrams), fragment_locations)
     }
 
     /// Checks plagiarism by equality of fragments, uses fast set intersection

@@ -2,9 +2,7 @@ use regex::Regex;
 
 /// Extracts lists of consecutive words of list length n from the provided text.
 ///     Cleans the text first.
-pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
-    let cleaned_text = clean_text(text);
-    let words: Vec<&str> = cleaned_text.split_whitespace().collect();
+pub fn extract_clean_word_ngrams(words: &Vec<String>, n: usize) -> Vec<String> {
     let mut output = Vec::new();
     // No way to find plagiarism if chunk size > # words
     if n > words.len() {
@@ -23,14 +21,19 @@ pub fn extract_clean_word_ngrams(text: &str, n: usize) -> Vec<String> {
 
 /// Removes nonalphanumeric characters, redundant spaces, newlines,
 ///     converts to lowecase and trims text
-fn clean_text(text: &str) -> String {
+pub fn clean_text(text: &str) -> Vec<String> {
     let remove_nonalpha = Regex::new(r"[^A-Za-z0-9 ]").unwrap();
     let remove_spaces = Regex::new(r"\s+").unwrap();
     // Remove all newlines and convert to lowercase
     let mut new_text: String = text.replace('\n', " ").to_lowercase();
     // Remove all non alphanumeric+space chars and remove redundant spaces
     new_text = remove_nonalpha.replace_all(&new_text, " ").to_string();
-    remove_spaces.replace_all(&new_text, " ").trim().to_string()
+    remove_spaces
+        .replace_all(&new_text, " ")
+        .trim()
+        .split_whitespace()
+        .map(String::from)
+        .collect()
 }
 
 #[cfg(test)]
