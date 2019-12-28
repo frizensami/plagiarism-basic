@@ -43,12 +43,15 @@ mod tests {
     #[test]
     fn test_ngram() {
         assert_eq!(
-            extract_clean_word_ngrams("mary had a", 2),
+            extract_clean_word_ngrams(
+                &vec!["mary".to_string(), "had".to_string(), "a".to_string()],
+                2
+            ),
             vec!["mary had", "had a"]
         );
 
         assert_eq!(
-            extract_clean_word_ngrams("    ||| mary\n  @@@@ ....  had a\n\n\n", 2),
+            extract_clean_word_ngrams(&clean_text("    ||| mary\n  @@@@ ....  had a\n\n\n"), 2),
             vec!["mary had", "had a"]
         );
     }
@@ -57,7 +60,7 @@ mod tests {
     fn test_clean() {
         assert_eq!(
             clean_text("  a  b c \n 2 3 @ 4\n224acb@\n"),
-            "a b c 2 3 4 224acb"
+            vec!["a", "b", "c", "2", "3", "4", "224acb"]
         )
     }
 }
