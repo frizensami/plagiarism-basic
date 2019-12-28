@@ -5,9 +5,9 @@ use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
 
-type TextOwnerID = String;
+pub type TextOwnerID = String;
 /// (start index (inclusive), end index (exclusive))
-type FragmentLocation = (usize, usize);
+pub type FragmentLocation = (usize, usize);
 
 /// Report for plagiarism between two owners
 #[derive(Serialize, Debug)]
@@ -62,6 +62,19 @@ impl PlagiarismDatabase {
             trusted_texts: HashMap::new(),
             untrusted_texts: HashMap::new(),
         }
+    }
+
+    /// Gets only the ID -> clean text mapping for all texts
+    pub fn get_all_cleantext(&self) -> HashMap<TextOwnerID, Vec<String>> {
+        let trusted = self
+            .trusted_texts
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clean_text_words.clone()));
+        let untrusted = self
+            .untrusted_texts
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clean_text_words.clone()));
+        trusted.chain(untrusted).collect()
     }
 
     /// Adds a text string as potential plagiarism source material

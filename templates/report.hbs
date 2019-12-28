@@ -27,22 +27,26 @@
     <h4 style="text-align: center"> This table shows all the phrases that are similar enough, based on the Levenshtein distance </h4>
     {{/if}}
     
-    <table border="1px solid black" align="center">
+    <table border="1px solid black" align="center" table-layout="fixed">
         <thead>
             <tr>
-                {{#if this.equal_fragments}}
-                    <!-- Header is redundant
-                  <td style="text-align: center"> <strong> {{this.owner_id1}} </strong> vs <strong> {{this.owner_id2}} </strong> </td>
-                    -->
-                {{else}}
                 <td style="text-align: center"> <strong> {{this.owner_id1}} </strong> </td>
                 <td style="text-align: center"> <strong> {{this.owner_id2}} </strong> </td>
+                <!--
+                {{#if this.equal_fragments}}
+                  <td style="text-align: center"> <strong> {{this.owner_id1}} </strong> vs <strong> {{this.owner_id2}} </strong> </td>
+                {{else}}
 
                 {{/if}}
+                -->
             </tr>
         </thead>
         <tbody>
-
+            <tr>
+                <td style="width: 50%" valign="top"> {{lookup ../texts [owner_id1]}} </td>
+                <td style="width: 50%" valign="top"> {{lookup ../texts [owner_id2]}} </td>
+            <tr>
+            <!--
             {{#if this.equal_fragments}}
             {{#each this.matching_fragments}}
             <tr> <td> {{this.0}} </td> </tr>
@@ -57,6 +61,7 @@
             {{/each}}
 
             {{/if}}
+            -->
         </tbody>
     </table>
     {{/each}}

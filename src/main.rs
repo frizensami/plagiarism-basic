@@ -96,5 +96,5 @@ fn main() {
     result_printer::print_results_ut(&mut ut_result);
     result_printer::print_results_t(&mut t_result);
     ut_result.append(&mut t_result);
-    result_output_html::output_results(&mut ut_result);
+    result_output_html::output_results(&mut ut_result, db.get_all_cleantext());
 }
