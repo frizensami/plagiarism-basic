@@ -18,8 +18,9 @@ Online plagiarism detection tools usually come with a few constraints. It could 
     - [Soft (Optimization) Objectives](#soft-optimization-objectives)
     - [Anti-Objectives](#anti-objectives)
 - [Project Status](#project-status)
-- [Installation](#installation)
+- [Installation Options](#installation-options)
     - [Binary Release](#binary-release)
+    - [Cargo Install](#cargo-install)
     - [Building from source](#building-from-source)
 - [Usage](#usage)
 - [Technical Details](#technical-details)
@@ -52,11 +53,17 @@ This tool is really only to catch amateur attempts at plagiarism. Whatever your 
 - The `lev` metric is too slow for large datasets, but promises more fine-grained control over how different two phrases can be.
 - The current output format is both in HTML and in the terminal. It's still very basic and hard to read. It is a project priority to improve on this.
 
-## Installation
+## Installation Options
 ### Binary Release
 Download a binary from the [Releases](https://github.com/frizensami/plagiarism-basic/releases/) page. Currently only `x86_64-unknown-linux-gnu` targets are supported. 
 
+### Cargo Install
+1. Install the `rust` language toolchain (https://www.rust-lang.org/tools/install).
+1. Run `cargo install plagiarism-basic`
+1. The executable should be installed from `crates.io` automatically by `cargo`. 
+
 ### Building from source
+1. The previous two options will likely distribute an outdated version of this tool. For the most up-to-date code, building from source is recommended.
 1. Install the `rust` language toolchain (https://www.rust-lang.org/tools/install).
 1. `git clone` this repository to a folder of your choice.
 1. Run `cargo build --release` in that folder.
