@@ -10,12 +10,15 @@ type TextOwnerID = String;
 type FragmentLocation = (usize, usize);
 
 /// Report for plagiarism between two owners
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct PlagiarismResult {
     pub owner_id1: TextOwnerID,
     pub owner_id2: TextOwnerID,
+    /// Each element is one matching tuple of text, one from each source
     pub matching_fragments: Vec<(String, String)>,
-    // pub matching_fragments_locations: Vec<(FragmentLocation, FragmentLocation)>,
+    /// Each element is the locations of one of the matching texts,
+    ///     corresponding to each element of matching_fragments
+    pub matching_fragments_locations: Vec<(Vec<FragmentLocation>, Vec<FragmentLocation>)>,
     pub trusted_owner1: bool,  // Is the first owner a trusted source?
     pub equal_fragments: bool, // Can we ignore one element of the tuple?
 }
@@ -66,12 +69,15 @@ impl PlagiarismDatabase {
         let clean_text_words = clean_text(text);
         let (fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
-        self.trusted_texts.insert(owner_id.clone(), TextEntry {
-            owner: owner_id.clone(),
-            clean_text_words,
-            fragments,
-            fragment_locations,
-        });
+        self.trusted_texts.insert(
+            owner_id.clone(),
+            TextEntry {
+                owner: owner_id.clone(),
+                clean_text_words,
+                fragments,
+                fragment_locations,
+            },
+        );
     }
 
     // Adds a text string as a potential plagiarized string
@@ -79,12 +85,15 @@ impl PlagiarismDatabase {
         let clean_text_words = clean_text(text);
         let (fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
-        self.untrusted_texts.insert(owner_id.clone(), TextEntry {
-            owner: owner_id.clone(),
-            clean_text_words,
-            fragments,
-            fragment_locations,
-        });
+        self.untrusted_texts.insert(
+            owner_id.clone(),
+            TextEntry {
+                owner: owner_id.clone(),
+                clean_text_words,
+                fragments,
+                fragment_locations,
+            },
+        );
     }
 
     /// Check for plagiarism by comparing metric against cutoff
@@ -93,7 +102,9 @@ impl PlagiarismDatabase {
         let mut results: Vec<PlagiarismResult> = Vec::new();
         for source in self.untrusted_texts.values() {
             for against in self.untrusted_texts.values() {
-                if source.owner == against.owner { continue; }
+                if source.owner == against.owner {
+                    continue;
+                }
 
                 let matching_fragments = match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
@@ -105,6 +116,12 @@ impl PlagiarismDatabase {
                 let result = PlagiarismResult {
                     owner_id1: source.owner.clone(),
                     owner_id2: against.owner.clone(),
+                    matching_fragments_locations: matching_fragments
+                        .iter()
+                        .map(|(f1, f2)| {
+                            (self.fragments_to_locations(f1, &source.owner, f2, &against.owner))
+                        })
+                        .collect(),
                     matching_fragments: matching_fragments,
                     trusted_owner1: false,
                     equal_fragments: self.metric == Metric::Equal,
@@ -115,6 +132,62 @@ impl PlagiarismDatabase {
         results
     }
 
+    /// Takes in a separated tuple of matching fragments and their owner IDs.
+    ///     Returns vectors representing where they can be found in their respective texts
+    fn fragments_to_locations(
+        &self,
+        f1: &String,
+        owner1: &String,
+        f2: &String,
+        owner2: &String,
+    ) -> (Vec<FragmentLocation>, Vec<FragmentLocation>) {
+        let f1_locations: Vec<FragmentLocation> = self
+            .untrusted_texts
+            .get(owner1)
+            .unwrap()
+            .fragment_locations
+            .get(f1)
+            .unwrap()
+            .clone();
+        let f2_locations: Vec<FragmentLocation> = self
+            .untrusted_texts
+            .get(owner2)
+            .unwrap()
+            .fragment_locations
+            .get(f2)
+            .unwrap()
+            .clone();
+        (f1_locations, f2_locations)
+    }
+    /// Takes in a separated tuple of matching fragments and their owner IDs.
+    ///     Returns vectors representing where they can be found in their respective texts
+    ///     This checks the trusted_texts map for the first owner
+    fn fragments_to_locations_trusted(
+        &self,
+        f1: &String,
+        owner1: &String,
+        f2: &String,
+        owner2: &String,
+    ) -> (Vec<FragmentLocation>, Vec<FragmentLocation>) {
+        let f1_locations: Vec<FragmentLocation> = self
+            .trusted_texts
+            .get(owner1)
+            .unwrap()
+            .fragment_locations
+            .get(f1)
+            .unwrap()
+            .clone();
+        let f2_locations: Vec<FragmentLocation> = self
+            .untrusted_texts
+            .get(owner2)
+            .unwrap()
+            .fragment_locations
+            .get(f2)
+            .unwrap()
+            .clone();
+        (f1_locations, f2_locations)
+    }
+
     /// Check for plagiarism by comparing metric against cutoff
     ///     for textfragments in database against trusted fragments
     pub fn check_trusted_plagiarism(&self) -> Vec<PlagiarismResult> {
@@ -122,7 +195,9 @@ impl PlagiarismDatabase {
         println!("\n\nChecking against trusted sources...\n");
         for source in self.trusted_texts.values() {
             for against in self.untrusted_texts.values() {
-                if source.owner == against.owner { continue; }
+                if source.owner == against.owner {
+                    continue;
+                }
 
                 let matching_fragments = match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
@@ -134,6 +209,17 @@ impl PlagiarismDatabase {
                 let result = PlagiarismResult {
                     owner_id1: source.owner.clone(),
                     owner_id2: against.owner.clone(),
+                    matching_fragments_locations: matching_fragments
+                        .iter()
+                        .map(|(f1, f2)| {
+                            (self.fragments_to_locations_trusted(
+                                f1,
+                                &source.owner,
+                                f2,
+                                &against.owner,
+                            ))
+                        })
+                        .collect(),
                     matching_fragments: matching_fragments,
                     trusted_owner1: true,
                     equal_fragments: self.metric == Metric::Equal,
