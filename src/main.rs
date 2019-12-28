@@ -10,7 +10,7 @@ use file_utils::get_file_contents_from_dir;
 use plagiarism_database::{PlagiarismDatabase, PlagiarismResult};
 
 /// Indicates which metric is being used for plagiarism comparison
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Metric {
     /// Check for equality between strings
     Equal,

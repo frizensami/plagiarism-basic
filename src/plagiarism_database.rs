@@ -20,6 +20,7 @@ pub struct PlagiarismResult {
 }
 
 /// A single user's "submission" or text string, broken into fragments
+#[derive(Debug)]
 struct TextEntry {
     owner: TextOwnerID,
     /// Cleaned text (word-by-word) for usage in printing
@@ -31,6 +32,7 @@ struct TextEntry {
 }
 
 /// Stores the corpus of trusted and untrusted strings
+#[derive(Debug)]
 pub struct PlagiarismDatabase {
     // Constant value for ngram size
     n: usize,
