@@ -12,6 +12,12 @@ struct ResultsHandlebars<'a> {
 
 /// Outputs results to html
 pub fn output_results(results: &mut Vec<PlagiarismResult>) {
+    results.sort_by(|a, b| {
+        b.matching_fragments
+            .len()
+            .partial_cmp(&a.matching_fragments.len())
+            .unwrap()
+    });
     let json_results = ResultsHandlebars { results: results };
     let hbars = Handlebars::new();
     let mut source_template = File::open(&"./templates/report.hbs").unwrap();
