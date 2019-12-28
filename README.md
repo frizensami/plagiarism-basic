@@ -50,7 +50,7 @@ This tool is really only to catch amateur attempts at plagiarism. Whatever your 
 ## Project Status
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
 - The `lev` metric is too slow for large datasets, but promises more fine-grained control over how different two phrases can be.
-- The current output format is very basic and hard to read. It is a project priority.
+- The current output format is both in HTML and in the terminal. It's still very basic and hard to read. It is a project priority to improve on this.
 
 ## Installation
 ### Binary Release
