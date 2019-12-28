@@ -3,6 +3,7 @@ use handlebars::Handlebars;
 use serde::Serialize;
 use std::fs::File;
 use std::process::Command;
+use std::fs::create_dir_all;
 
 #[derive(Serialize)]
 struct ResultsHandlebars<'a> {
@@ -14,6 +15,7 @@ pub fn output_results(results: &mut Vec<PlagiarismResult>) {
     let json_results = ResultsHandlebars { results: results };
     let hbars = Handlebars::new();
     let mut source_template = File::open(&"./templates/report.hbs").unwrap();
+    create_dir_all("./www/").unwrap();
     let mut output_file = File::create("www/report.html").unwrap();
     hbars
         .render_template_source_to_write(&mut source_template, &json_results, &mut output_file)
