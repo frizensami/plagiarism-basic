@@ -316,7 +316,7 @@ dependencies = [
 
 [[package]]
 name = "plagiarism-basic"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gcollections 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
