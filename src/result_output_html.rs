@@ -1,9 +1,9 @@
 use crate::plagiarism_database::PlagiarismResult;
 use handlebars::Handlebars;
 use serde::Serialize;
+use std::fs::create_dir_all;
 use std::fs::File;
 use std::process::Command;
-use std::fs::create_dir_all;
 
 #[derive(Serialize)]
 struct ResultsHandlebars<'a> {
