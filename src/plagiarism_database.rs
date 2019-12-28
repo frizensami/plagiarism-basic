@@ -15,6 +15,7 @@ pub struct PlagiarismResult {
     pub owner_id1: TextOwnerID,
     pub owner_id2: TextOwnerID,
     pub matching_fragments: Vec<(String, String)>,
+    // pub matching_fragments_locations: Vec<(FragmentLocation, FragmentLocation)>,
     pub trusted_owner1: bool,  // Is the first owner a trusted source?
     pub equal_fragments: bool, // Can we ignore one element of the tuple?
 }
@@ -40,10 +41,10 @@ pub struct PlagiarismDatabase {
     s: usize,
     // Metric to use
     metric: Metric,
-    /// Map
-    trusted_texts: Vec<TextEntry>,
-    ///
-    untrusted_texts: Vec<TextEntry>,
+    /// Mapping owner ID to the processed text entry for that owner
+    trusted_texts: HashMap<TextOwnerID, TextEntry>,
+    /// Mapping owner ID to the processed text entry for that owner
+    untrusted_texts: HashMap<TextOwnerID, TextEntry>,
 }
 
 impl PlagiarismDatabase {
@@ -55,18 +56,18 @@ impl PlagiarismDatabase {
             n,
             s,
             metric,
-            trusted_texts: Vec::new(),
-            untrusted_texts: Vec::new(),
+            trusted_texts: HashMap::new(),
+            untrusted_texts: HashMap::new(),
         }
     }
 
     /// Adds a text string as potential plagiarism source material
-    pub fn add_trusted_text(&mut self, owner_id: String, text: &str) {
+    pub fn add_trusted_text(&mut self, owner_id: &String, text: &str) {
         let clean_text_words = clean_text(text);
         let (fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
-        self.trusted_texts.push(TextEntry {
-            owner: owner_id,
+        self.trusted_texts.insert(owner_id.clone(), TextEntry {
+            owner: owner_id.clone(),
             clean_text_words,
             fragments,
             fragment_locations,
@@ -74,12 +75,12 @@ impl PlagiarismDatabase {
     }
 
     // Adds a text string as a potential plagiarized string
-    pub fn add_untrusted_text(&mut self, owner_id: String, text: &str) {
+    pub fn add_untrusted_text(&mut self, owner_id: &String, text: &str) {
         let clean_text_words = clean_text(text);
         let (fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
-        self.untrusted_texts.push(TextEntry {
-            owner: owner_id,
+        self.untrusted_texts.insert(owner_id.clone(), TextEntry {
+            owner: owner_id.clone(),
             clean_text_words,
             fragments,
             fragment_locations,
@@ -90,10 +91,9 @@ impl PlagiarismDatabase {
     ///     for all textfragments currently in database
     pub fn check_untrusted_plagiarism(&self) -> Vec<PlagiarismResult> {
         let mut results: Vec<PlagiarismResult> = Vec::new();
-        for i in 0..self.untrusted_texts.len() {
-            for j in (i + 1)..self.untrusted_texts.len() {
-                let source = &self.untrusted_texts[i];
-                let against = &self.untrusted_texts[j];
+        for source in self.untrusted_texts.values() {
+            for against in self.untrusted_texts.values() {
+                if source.owner == against.owner { continue; }
 
                 let matching_fragments = match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
@@ -120,10 +120,10 @@ impl PlagiarismDatabase {
     pub fn check_trusted_plagiarism(&self) -> Vec<PlagiarismResult> {
         let mut results: Vec<PlagiarismResult> = Vec::new();
         println!("\n\nChecking against trusted sources...\n");
-        for i in 0..self.trusted_texts.len() {
-            for j in 0..self.untrusted_texts.len() {
-                let source = &self.trusted_texts[i];
-                let against = &self.untrusted_texts[j];
+        for source in self.trusted_texts.values() {
+            for against in self.untrusted_texts.values() {
+                if source.owner == against.owner { continue; }
+
                 let matching_fragments = match self.metric {
                     Metric::Equal => self.check_plagiarism_equal(source, against),
                     _ => self.check_plagiarism_other(source, self.metric, against),

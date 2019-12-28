@@ -84,10 +84,10 @@ fn main() {
     let mut db = PlagiarismDatabase::new(n, s, metric);
 
     for (id, val) in untrusted_contents {
-        db.add_untrusted_text(id, &val);
+        db.add_untrusted_text(&id, &val);
     }
     for (id, val) in trusted_contents {
-        db.add_trusted_text(id, &val);
+        db.add_trusted_text(&id, &val);
     }
 
     // Add all plagiarism results to a vector of results
