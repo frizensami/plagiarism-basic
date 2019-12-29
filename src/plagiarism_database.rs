@@ -135,7 +135,7 @@ impl PlagiarismDatabase {
                             (self.fragments_to_locations(f1, &source.owner, f2, &against.owner))
                         })
                         .collect(),
-                    matching_fragments: matching_fragments,
+                    matching_fragments,
                     trusted_owner1: false,
                     equal_fragments: self.metric == Metric::Equal,
                 };
@@ -233,7 +233,7 @@ impl PlagiarismDatabase {
                             ))
                         })
                         .collect(),
-                    matching_fragments: matching_fragments,
+                    matching_fragments,
                     trusted_owner1: true,
                     equal_fragments: self.metric == Metric::Equal,
                 };
@@ -252,10 +252,9 @@ impl PlagiarismDatabase {
     ) -> (HashSet<String>, HashMap<String, Vec<FragmentLocation>>) {
         let ngrams = extract_clean_word_ngrams(words, n);
         let mut fragment_locations: HashMap<String, Vec<FragmentLocation>> = HashMap::new();
-        let mut start_location = 0;
         // Insert all ngrams into hashmap of ngram locations
         // Handle both the case with no key (new vec) and existing key (push)
-        for ngram in &ngrams {
+        for (start_location, ngram) in ngrams.iter().enumerate() {
             if fragment_locations.contains_key(ngram) {
                 fragment_locations
                     .get_mut(ngram)
@@ -266,7 +265,6 @@ impl PlagiarismDatabase {
                 loc_vec.push((start_location, start_location + n));
                 fragment_locations.insert(ngram.to_string(), loc_vec);
             }
-            start_location += 1;
         }
         (HashSet::from_iter(ngrams), fragment_locations)
     }
@@ -283,7 +281,7 @@ impl PlagiarismDatabase {
             // Plagiarism!
             intersect
                 .iter()
-                .map(|val| (val.to_string(), val.to_string()))
+                .map(|val| ((*val).to_string(), (*val).to_string()))
                 .collect()
         } else {
             Vec::new()

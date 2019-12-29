@@ -10,7 +10,7 @@ pub fn get_file_contents_from_dir(dir: &str) -> io::Result<Vec<(String, String)>
         println!("Checking filename {:?}", filepath.file_name().unwrap());
         file_id_contents.push((
             filepath.file_name().unwrap().to_str().unwrap().to_string(),
-            fs::read_to_string(filepath).unwrap_or("".to_string()),
+            fs::read_to_string(filepath).unwrap_or_else(|_| "".to_string()),
         ))
     }
     Ok(file_id_contents)

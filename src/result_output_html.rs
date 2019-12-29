@@ -6,7 +6,6 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fs::create_dir_all;
 use std::fs::File;
-use std::iter::FromIterator;
 use std::process::Command;
 
 #[derive(Serialize)]
@@ -16,19 +15,11 @@ struct ResultsHandlebars<'a> {
 }
 
 // Send a set of these over for each text display
-struct TextWithColor {
-    text: String,
-    color: String,
-}
-
-// Send a set of these over for each text display
 #[derive(Serialize)]
 struct TextMaybeBold {
     text: String,
     is_bold: bool,
 }
-
-type BoldInterval = (usize, usize);
 
 #[derive(Serialize)]
 struct HBPlagiarismResult {
@@ -78,8 +69,8 @@ pub fn output_results(
         let mut cur_words: Vec<String> = Vec::new();
         let mut contains_previously = false;
         let t1_text = texts.get(&result.owner_id1).unwrap();
-        for i in 0..t1_text.len() {
-            let word = t1_text[i].clone();
+        for (i, item) in t1_text.iter().enumerate() {
+            let word = item.clone();
             if text1_intervals.contains(&i) {
                 // In interval, should be bold
                 if contains_previously {
@@ -108,7 +99,7 @@ pub fn output_results(
                 contains_previously = false;
             }
         }
-        if cur_words.len() > 0 {
+        if !cur_words.is_empty() {
             if contains_previously {
                 t1_boldtext.push(TextMaybeBold {
                     text: cur_words.join(" ").clone(),
@@ -126,8 +117,8 @@ pub fn output_results(
         let mut cur_words: Vec<String> = Vec::new();
         let mut contains_previously = false;
         let t2_text = texts.get(&result.owner_id2).unwrap();
-        for i in 0..t2_text.len() {
-            let word = t2_text[i].clone();
+        for (i, item) in t2_text.iter().enumerate() {
+            let word = item.clone();
             if text2_intervals.contains(&i) {
                 // In interval, should be bold
                 if contains_previously {
@@ -156,7 +147,7 @@ pub fn output_results(
                 contains_previously = false;
             }
         }
-        if cur_words.len() > 0 {
+        if !cur_words.is_empty() {
             if contains_previously {
                 t2_boldtext.push(TextMaybeBold {
                     text: cur_words.join(" ").clone(),

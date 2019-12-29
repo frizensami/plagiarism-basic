@@ -9,14 +9,15 @@ pub fn extract_clean_word_ngrams(words: &Vec<String>, n: usize) -> Vec<String> {
         return Vec::new();
     }
 
-    for i in 0..(words.len() - n + 1) {
+    // Inclusive iterator between these two values
+    for i in 0..=(words.len() - n) {
         let mut ngram = Vec::new();
         for j in 0..n {
             ngram.push(words[i + j].to_string());
         }
         output.push(ngram.join(" "));
     }
-    return output;
+    output
 }
 
 /// Removes nonalphanumeric characters, redundant spaces, newlines,
