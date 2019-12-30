@@ -186,22 +186,10 @@ impl PlagiarismDatabase {
         f2: &String,
         owner2: &String,
     ) -> (Vec<FragmentLocation>, Vec<FragmentLocation>) {
-        let f1_locations: Vec<FragmentLocation> = self
-            .untrusted_texts
-            .get(owner1)
-            .unwrap()
-            .fragment_locations
-            .get(f1)
-            .unwrap()
-            .clone();
-        let f2_locations: Vec<FragmentLocation> = self
-            .untrusted_texts
-            .get(owner2)
-            .unwrap()
-            .fragment_locations
-            .get(f2)
-            .unwrap()
-            .clone();
+        let f1_locations: Vec<FragmentLocation> =
+            self.untrusted_texts[owner1].fragment_locations[f1].clone();
+        let f2_locations: Vec<FragmentLocation> =
+            self.untrusted_texts[owner2].fragment_locations[f2].clone();
         (f1_locations, f2_locations)
     }
     /// Takes in a separated tuple of matching fragments and their owner IDs.
@@ -214,22 +202,10 @@ impl PlagiarismDatabase {
         f2: &String,
         owner2: &String,
     ) -> (Vec<FragmentLocation>, Vec<FragmentLocation>) {
-        let f1_locations: Vec<FragmentLocation> = self
-            .trusted_texts
-            .get(owner1)
-            .unwrap()
-            .fragment_locations
-            .get(f1)
-            .unwrap()
-            .clone();
-        let f2_locations: Vec<FragmentLocation> = self
-            .untrusted_texts
-            .get(owner2)
-            .unwrap()
-            .fragment_locations
-            .get(f2)
-            .unwrap()
-            .clone();
+        let f1_locations: Vec<FragmentLocation> =
+            self.trusted_texts[owner1].fragment_locations[f1].clone();
+        let f2_locations: Vec<FragmentLocation> =
+            self.untrusted_texts[owner2].fragment_locations[f2].clone();
         (f1_locations, f2_locations)
     }
 
