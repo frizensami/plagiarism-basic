@@ -1,4 +1,4 @@
-The first thing to consider when talking about Google’s PageRank algorithm, is that a PageRank is essentially how important that web page is to the internet. So in essence it is a popularity contest between WebPages.
+The first thing to consider when talking about GoogleÂ’s PageRank algorithm, is that a PageRank is essentially how important that web page is to the internet. So in essence it is a popularity contest between WebPages.
 
 Originally search engines used highest keyword density, however this could be abused if keyword spamming was implemented. Instead Google uses a system that is based on sites linking to each other, e.g. the more important a site is that is linked to yours the higher your site will become. 
 

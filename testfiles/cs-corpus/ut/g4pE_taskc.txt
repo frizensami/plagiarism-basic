@@ -3,7 +3,7 @@ Relevancy rankings of documents in a keyword search can be calculated, using the
 LIMITATION:
 There is some limitation of vector space model.
 Models based on and extending the vector space model include:
-•	Generalized vector space model.
-•	(enhanced) Topic-based Vector Space Model [1] (eTVSM) — Extends the vector space model by removing the constraint that the term-vectors be orthogonal. In contrast to the generalized vector space model the (enhanced) Topic-based Vector Space Model does not depend on concurrence-based similarities between terms. The enhancement of the enhanced Topic-based Vector Space Model  (compared to the not enhanced one) is a proposal on how to derive term-vectors from an Ontology. 
+Â•	Generalized vector space model.
+Â•	(enhanced) Topic-based Vector Space Model [1] (eTVSM) Â— Extends the vector space model by removing the constraint that the term-vectors be orthogonal. In contrast to the generalized vector space model the (enhanced) Topic-based Vector Space Model does not depend on concurrence-based similarities between terms. The enhancement of the enhanced Topic-based Vector Space Model  (compared to the not enhanced one) is a proposal on how to derive term-vectors from an Ontology. 
  
 
