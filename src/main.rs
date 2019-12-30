@@ -4,10 +4,11 @@ mod result_output_html;
 mod result_printer;
 mod string_compare;
 mod text_utils;
+mod cli_input;
 
-use clap::{App, Arg};
 use file_utils::get_file_contents_from_dir;
 use plagiarism_database::{PlagiarismDatabase, PlagiarismResult};
+use cli_input::get_cli_input;
 
 /// Indicates which metric is being used for plagiarism comparison
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -17,6 +18,14 @@ pub enum Metric {
     /// Check that Levenshtein distance between strings is lower than
     /// a given bound
     Lev,
+}
+
+pub struct AppSettings {
+    n: usize,
+    s: usize,
+    metric: Metric,
+    udir: String,
+    tdir: String
 }
 
 /// Overall strategy:
@@ -31,54 +40,9 @@ pub enum Metric {
 ///         - Hash all these word sequences and provide those as well
 ///
 fn main() {
-    let app = App::new("Basic Plagiarism Checker")
-        .about("Checks for plagiarism using very basic metrics between different text files")
-        .version("v0.1")
-        .author("Sriram Sami (@frizensami on GitHub)")
-        .arg(Arg::with_name("untrusted-directory")
-                .short("u")
-                .help("Sets the directory containing untrusted text files. Each file will be treated as a separate submission by a separate person.")
-                .takes_value(true)
-                .required(true))
-        .arg(Arg::with_name("trusted-directory")
-                .short("t")
-                .help("Sets the directory containing trusted text files. Each file will be treated as a separate possible plagiarism source text.")
-                .takes_value(true)
-                .required(true))
-        .arg(Arg::with_name("metric")
-                .short("m")
-                .help("Sets the metric (function) used for similarity testing. Equal checks that both strings are equal, and lev uses the Levenshtein distance")
-                .takes_value(true)
-                .required(true)
-                .possible_values(&["equal", "lev"]))
-        .arg(Arg::with_name("sensitivity")
-                .short("n")
-                .help("Sets the number of words required to form a unit of plagiarism checking")
-                .takes_value(true)
-                .required(true))
-
-        .arg(Arg::with_name("similarity")
-                .short("s")
-                .help("Sets the threshold value for plagiarism to be detected by a chosen metric")
-                .takes_value(true)
-                .required(true));
-
-    // Get options for algorithm
-    let matches = app.get_matches();
-    let n: usize = matches.value_of("sensitivity").unwrap().parse().unwrap();
-    let s: usize = matches.value_of("similarity").unwrap().parse().unwrap();
-    let metricarg: &str = matches.value_of("metric").unwrap();
-    let metric: Metric = match metricarg {
-        "equal" => Metric::Equal,
-        "lev" => Metric::Lev,
-        _ => panic!("Incorrect metric argument given!"),
-    };
-
-    // Get info from directories
-    let udir: &str = matches.value_of("untrusted-directory").unwrap();
-    let tdir: &str = matches.value_of("trusted-directory").unwrap();
-    let untrusted_contents = get_file_contents_from_dir(udir).unwrap();
-    let trusted_contents = get_file_contents_from_dir(tdir).unwrap();
+    let AppSettings { n, s, metric, udir, tdir }: AppSettings = get_cli_input();
+    let untrusted_contents = get_file_contents_from_dir(&udir).unwrap();
+    let trusted_contents = get_file_contents_from_dir(&tdir).unwrap();
 
     // Add text to the DB
     let mut db = PlagiarismDatabase::new(n, s, metric);
