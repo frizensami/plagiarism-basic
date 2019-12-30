@@ -225,10 +225,10 @@ impl PlagiarismDatabase {
                 fragment_locations
                     .get_mut(ngram)
                     .unwrap()
-                    .push((start_location, start_location + n));
+                    .push((start_location, start_location + n - 1));
             } else {
                 let mut loc_vec: Vec<FragmentLocation> = Vec::new();
-                loc_vec.push((start_location, start_location + n));
+                loc_vec.push((start_location, start_location + n - 1));
                 fragment_locations.insert(ngram.to_string(), loc_vec);
             }
         }

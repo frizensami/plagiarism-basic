@@ -43,6 +43,9 @@ pub fn clean_text(text: &str) -> Vec<String> {
 /// Given a list of words and the intervals (union-ed) that are plagiarized:
 ///     Separate the words into text segments where plagiarized segments are indicated
 ///     in bold.
+/// Algorithm:
+///     - Since the intervals are sorted, we read each interval one by one from start
+///     -
 pub fn get_boldtext_segments_from_intervals(
     words: &Vec<String>,
     text_intervals: &IntervalSet<usize>,
@@ -50,6 +53,7 @@ pub fn get_boldtext_segments_from_intervals(
     let mut text_segments: Vec<TextMaybeBold> = Vec::new();
     let mut cur_words: Vec<String> = Vec::new();
     let mut contains_previously = false;
+
     for (i, item) in words.iter().enumerate() {
         let word = item.clone();
         if text_intervals.contains(&i) {
@@ -57,10 +61,12 @@ pub fn get_boldtext_segments_from_intervals(
             if contains_previously {
                 cur_words.push(word);
             } else {
-                text_segments.push(TextMaybeBold {
-                    text: cur_words.join(" ").clone(),
-                    is_bold: false,
-                });
+                if !cur_words.is_empty() {
+                    text_segments.push(TextMaybeBold {
+                        text: cur_words.join(" ").clone(),
+                        is_bold: false,
+                    });
+                }
                 cur_words = Vec::new();
                 cur_words.push(word);
             }
@@ -68,10 +74,12 @@ pub fn get_boldtext_segments_from_intervals(
         } else {
             // Not in interval now
             if contains_previously {
-                text_segments.push(TextMaybeBold {
-                    text: cur_words.join(" ").clone(),
-                    is_bold: true,
-                });
+                if !cur_words.is_empty() {
+                    text_segments.push(TextMaybeBold {
+                        text: cur_words.join(" ").clone(),
+                        is_bold: true,
+                    });
+                }
                 cur_words = Vec::new();
                 cur_words.push(word);
             } else {
@@ -122,5 +130,111 @@ mod tests {
             clean_text("  a  b c \n 2 3 @ 4\n224acb@\n"),
             vec!["a", "b", "c", "2", "3", "4", "224acb"]
         )
+    }
+
+    #[test]
+    fn test_intervals_firstwords_bold() {
+        let words = vec!["a", "b", "c", "d", "e"]
+            .iter()
+            .map(|x| x.to_string())
+            .collect();
+        let intervals = vec![(0, 1)].to_interval_set();
+        assert_eq!(
+            get_boldtext_segments_from_intervals(&words, &intervals),
+            vec![
+                TextMaybeBold {
+                    text: "a b".to_string(),
+                    is_bold: true
+                },
+                TextMaybeBold {
+                    text: "c d e".to_string(),
+                    is_bold: false
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn test_intervals_lastwords_bold() {
+        let words = vec!["a", "b", "c", "d", "e"]
+            .iter()
+            .map(|x| x.to_string())
+            .collect();
+        let intervals = vec![(2, 4)].to_interval_set();
+        assert_eq!(
+            get_boldtext_segments_from_intervals(&words, &intervals),
+            vec![
+                TextMaybeBold {
+                    text: "a b".to_string(),
+                    is_bold: false
+                },
+                TextMaybeBold {
+                    text: "c d e".to_string(),
+                    is_bold: true
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn test_intervals_no_bold() {
+        let words = vec!["a", "b", "c", "d", "e"]
+            .iter()
+            .map(|x| x.to_string())
+            .collect();
+        let intervals = vec![].to_interval_set();
+        assert_eq!(
+            get_boldtext_segments_from_intervals(&words, &intervals),
+            vec![TextMaybeBold {
+                text: "a b c d e".to_string(),
+                is_bold: false
+            },]
+        );
+    }
+
+    #[test]
+    fn test_intervals_all_bold() {
+        let words = vec!["a", "b", "c", "d", "e"]
+            .iter()
+            .map(|x| x.to_string())
+            .collect();
+        let intervals = vec![(0, 4)].to_interval_set();
+        assert_eq!(
+            get_boldtext_segments_from_intervals(&words, &intervals),
+            vec![TextMaybeBold {
+                text: "a b c d e".to_string(),
+                is_bold: true
+            },]
+        );
+    }
+
+    #[test]
+    fn test_intervals_single_letters_bold() {
+        let words = vec!["a", "b", "c", "d", "e"]
+            .iter()
+            .map(|x| x.to_string())
+            .collect();
+        let intervals = vec![(0, 0), (2, 2)].to_interval_set();
+        assert_eq!(
+            get_boldtext_segments_from_intervals(&words, &intervals),
+            vec![
+                TextMaybeBold {
+                    text: "a".to_string(),
+                    is_bold: true
+                },
+                TextMaybeBold {
+                    text: "b".to_string(),
+                    is_bold: false
+                },
+                TextMaybeBold {
+                    text: "c".to_string(),
+                    is_bold: true
+                },
+                TextMaybeBold {
+                    text: "d e".to_string(),
+                    is_bold: false
+                },
+            ]
+        );
     }
 }

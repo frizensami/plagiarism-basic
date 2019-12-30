@@ -10,7 +10,7 @@ use std::fs::File;
 use std::process::Command;
 
 // Send a set of these over for each text display
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq, Eq, Debug)]
 pub struct TextMaybeBold {
     /// The text to to be displayed
     pub text: String,
@@ -50,7 +50,7 @@ pub fn output_results(
     // in the vector of text words. However, this requires too much handlebars work.
 
     // Compute the text segments to display and their formatting for each result.
-    // This avoids having to figure this out in Handlebars. We lose the goal of 
+    // This avoids having to figure this out in Handlebars. We lose the goal of
     // sharing the entire text, but reduce complexity in handlebars
     let mut plag_results: Vec<HBPlagiarismResult> = Vec::new();
     for result in results {
