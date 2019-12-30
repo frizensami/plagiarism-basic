@@ -27,6 +27,8 @@ struct HBPlagiarismResult {
     equal_fragments: bool,
     text_display1: Vec<TextMaybeBold>,
     text_display2: Vec<TextMaybeBold>,
+    text1_plag_percent: usize,
+    text2_plag_percent: usize,
 }
 
 /// Outputs results to html
@@ -67,6 +69,13 @@ pub fn output_results(
             }
         }
 
+        let numwords1 = text1_intervals.iter().fold(0, |acc, inter| {
+            acc + (bounded::Bounded::upper(inter) - bounded::Bounded::lower(inter) + 1)
+        });
+        let numwords2 = text2_intervals.iter().fold(0, |acc, inter| {
+            acc + (bounded::Bounded::upper(inter) - bounded::Bounded::lower(inter) + 1)
+        });
+
         // Get the actual text fragments based on the intervals we calculated
         let t1_text = texts.get(&result.owner_id1).unwrap();
         let t1_boldtext: Vec<TextMaybeBold> =
@@ -84,6 +93,8 @@ pub fn output_results(
             equal_fragments: result.equal_fragments,
             text_display1: t1_boldtext,
             text_display2: t2_boldtext,
+            text1_plag_percent: ((numwords1 as f32) / (t1_text.len() as f32) * 100.0) as usize,
+            text2_plag_percent: ((numwords2 as f32) / (t2_text.len() as f32) * 100.0) as usize,
         })
     }
 

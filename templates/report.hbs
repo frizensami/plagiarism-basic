@@ -28,8 +28,8 @@
     <table border="1px solid black" align="center" table-layout="fixed">
         <thead>
             <tr>
-                <td style="text-align: center"> <strong> [{{#if this.trusted_owner1}} trusted {{else}} untrusted {{/if}}]  {{this.owner_id1}} </strong> </td>
-                <td style="text-align: center"> <strong> [ untrusted ] {{this.owner_id2}} </strong> </td>
+                <td style="text-align: center"> <strong> [{{#if this.trusted_owner1}} trusted {{else}} untrusted {{/if}}]  {{this.owner_id1}} </strong><br> (Plagarism amount: <strong> {{this.text1_plag_percent}}% </strong> out of all words) </td>
+                <td style="text-align: center"> <strong> [ untrusted ] {{this.owner_id2}} </strong> <br> (Plagarism amount: <strong> {{this.text2_plag_percent}}% </strong> out of all words) </td>
                 <!--
                 {{#if this.equal_fragments}}
                   <td style="text-align: center"> <strong> {{this.owner_id1}} </strong> vs <strong> {{this.owner_id2}} </strong> </td>
