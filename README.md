@@ -51,7 +51,7 @@ This tool is really only to catch amateur attempts at plagiarism. Whatever your 
 ## Project Status
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
 - The `lev` metric is too slow for large datasets, but promises more fine-grained control over how different two phrases can be.
-- The current output format is both in HTML and in the terminal. In the HTML output, both texts are displayed side-by-side, with all detected plagiarized phrases being highlighted. The goal is for this to be color-coded, which is a project priority.
+- The current output format is both in HTML and in the terminal. In the HTML output, both texts are displayed side-by-side, with all detected plagiarized phrases being highlighted in bold. The percent of plagiarism detected (# plagiarized words / all words * 100%) is also indicated for each source pair. The goal is for all of this to be color-coded, which is a project priority.
 
 ## Installation Options
 ### Binary Release
