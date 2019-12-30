@@ -110,37 +110,71 @@ impl PlagiarismDatabase {
     }
 
     /// Check for plagiarism by comparing metric against cutoff
-    ///     for all textfragments currently in database
+    ///     for all untrusted textfragments currently in database
     pub fn check_untrusted_plagiarism(&self) -> Vec<PlagiarismResult> {
         let mut results: Vec<PlagiarismResult> = Vec::new();
-        // We don't compare the same items twice,
-        //  have to check since pulling from same list
+        // .skip() in second loop to avoid checking same combinations twice
         for (sourceidx, source) in self.untrusted_texts.values().enumerate() {
             for against in self.untrusted_texts.values().skip(sourceidx + 1) {
-                let matching_fragments = match self.metric {
-                    Metric::Equal => self.check_plagiarism_equal(source, against),
-                    _ => self.check_plagiarism_other(source, self.metric, against),
-                };
-                if matching_fragments.is_empty() {
-                    continue;
+                if let Some(result) = self.run_metrics(source, against, false) {
+                    results.push(result);
                 }
-                let result = PlagiarismResult {
-                    owner_id1: source.owner.clone(),
-                    owner_id2: against.owner.clone(),
-                    matching_fragments_locations: matching_fragments
-                        .iter()
-                        .map(|(f1, f2)| {
-                            (self.fragments_to_locations(f1, &source.owner, f2, &against.owner))
-                        })
-                        .collect(),
-                    matching_fragments,
-                    trusted_owner1: false,
-                    equal_fragments: self.metric == Metric::Equal,
-                };
-                results.push(result);
             }
         }
         results
+    }
+
+    /// Check for plagiarism by comparing metric against cutoff
+    ///     for textfragments in database against trusted fragments
+    pub fn check_trusted_plagiarism(&self) -> Vec<PlagiarismResult> {
+        let mut results: Vec<PlagiarismResult> = Vec::new();
+        for source in self.trusted_texts.values() {
+            for against in self.untrusted_texts.values() {
+                if let Some(result) = self.run_metrics(source, against, true) {
+                    results.push(result);
+                }
+            }
+        }
+        results
+    }
+
+    /// Helper function to actually run the plagiarism check against sources
+    fn run_metrics(
+        &self,
+        source: &TextEntry,
+        against: &TextEntry,
+        is_trusted_owner1: bool,
+    ) -> Option<PlagiarismResult> {
+        // Run metrics against both sources to get all matching strings
+        let matching_fragments = match self.metric {
+            Metric::Equal => self.check_plagiarism_equal(source, against),
+            _ => self.check_plagiarism_other(source, self.metric, against),
+        };
+        // No plagiarism between these two sources
+        if matching_fragments.is_empty() {
+            return None;
+        }
+        // Get the locations of each matching fragment from each source text
+        let matching_fragments_locations = matching_fragments
+            .iter()
+            .map(|(f1, f2)| {
+                if is_trusted_owner1 {
+                    self.fragments_to_locations_trusted(f1, &source.owner, f2, &against.owner)
+                } else {
+                    self.fragments_to_locations(f1, &source.owner, f2, &against.owner)
+                }
+            })
+            .collect();
+        // Construct result
+        let result = PlagiarismResult {
+            owner_id1: source.owner.clone(),
+            owner_id2: against.owner.clone(),
+            matching_fragments_locations,
+            matching_fragments,
+            trusted_owner1: is_trusted_owner1,
+            equal_fragments: self.metric == Metric::Equal,
+        };
+        Some(result)
     }
 
     /// Takes in a separated tuple of matching fragments and their owner IDs.
@@ -197,48 +231,6 @@ impl PlagiarismDatabase {
             .unwrap()
             .clone();
         (f1_locations, f2_locations)
-    }
-
-    /// Check for plagiarism by comparing metric against cutoff
-    ///     for textfragments in database against trusted fragments
-    pub fn check_trusted_plagiarism(&self) -> Vec<PlagiarismResult> {
-        let mut results: Vec<PlagiarismResult> = Vec::new();
-        println!("\n\nChecking against trusted sources...\n");
-        for source in self.trusted_texts.values() {
-            for against in self.untrusted_texts.values() {
-                if source.owner == against.owner {
-                    continue;
-                }
-
-                let matching_fragments = match self.metric {
-                    Metric::Equal => self.check_plagiarism_equal(source, against),
-                    _ => self.check_plagiarism_other(source, self.metric, against),
-                };
-                if matching_fragments.is_empty() {
-                    continue;
-                }
-                let result = PlagiarismResult {
-                    owner_id1: source.owner.clone(),
-                    owner_id2: against.owner.clone(),
-                    matching_fragments_locations: matching_fragments
-                        .iter()
-                        .map(|(f1, f2)| {
-                            (self.fragments_to_locations_trusted(
-                                f1,
-                                &source.owner,
-                                f2,
-                                &against.owner,
-                            ))
-                        })
-                        .collect(),
-                    matching_fragments,
-                    trusted_owner1: true,
-                    equal_fragments: self.metric == Metric::Equal,
-                };
-                results.push(result);
-            }
-        }
-        results
     }
 
     /// Splits a text string into separate ngram TextFragments
