@@ -1,4 +1,5 @@
 use crate::plagiarism_database::{PlagiarismResult, TextOwnerID};
+use crate::text_utils::get_boldtext_segments_from_intervals;
 use gcollections::ops::*;
 use handlebars::Handlebars;
 use interval::interval_set::*;
@@ -8,19 +9,16 @@ use std::fs::create_dir_all;
 use std::fs::File;
 use std::process::Command;
 
-#[derive(Serialize)]
-struct ResultsHandlebars<'a> {
-    results: &'a Vec<PlagiarismResult>,
-    texts: HashMap<TextOwnerID, Vec<String>>,
-}
-
 // Send a set of these over for each text display
 #[derive(Serialize)]
-struct TextMaybeBold {
-    text: String,
-    is_bold: bool,
+pub struct TextMaybeBold {
+    /// The text to to be displayed
+    pub text: String,
+    /// Should the text be rendered in a bold font?
+    pub is_bold: bool,
 }
 
+/// A plagiarism result that can be formatted by Handlebars
 #[derive(Serialize)]
 struct HBPlagiarismResult {
     owner_id1: TextOwnerID,
@@ -36,7 +34,7 @@ pub fn output_results(
     results: &mut Vec<PlagiarismResult>,
     texts: HashMap<TextOwnerID, Vec<String>>,
 ) {
-    // We want the results by most significant first
+    // We want the results by most significant first (most matches)
     results.sort_by(|a, b| {
         b.matching_fragments
             .len()
@@ -49,14 +47,17 @@ pub fn output_results(
 
     // We do NOT want to send the entire text over multiple times: could be
     // really large. We want to send over the --locations-- to highlight
-    // in the vector of text words
+    // in the vector of text words. However, this requires too much handlebars work.
 
-    // Calculate the text output for each result
+    // Compute the text segments to display and their formatting for each result.
+    // This avoids having to figure this out in Handlebars. We lose the goal of 
+    // sharing the entire text, but reduce complexity in handlebars
     let mut plag_results: Vec<HBPlagiarismResult> = Vec::new();
-
     for result in results {
         let mut text1_intervals = IntervalSet::empty();
         let mut text2_intervals = IntervalSet::empty();
+        // Calculate the union of all locations to bold to minimize the number
+        // of fragments we have to send
         for (text1_locs, text2_locs) in &result.matching_fragments_locations {
             for text1_loc in text1_locs {
                 text1_intervals = text1_intervals.union(&text1_loc.to_interval_set());
@@ -65,102 +66,17 @@ pub fn output_results(
                 text2_intervals = text2_intervals.union(&text2_loc.to_interval_set());
             }
         }
-        let mut t1_boldtext: Vec<TextMaybeBold> = Vec::new();
-        let mut cur_words: Vec<String> = Vec::new();
-        let mut contains_previously = false;
+
+        // Get the actual text fragments based on the intervals we calculated
         let t1_text = texts.get(&result.owner_id1).unwrap();
-        for (i, item) in t1_text.iter().enumerate() {
-            let word = item.clone();
-            if text1_intervals.contains(&i) {
-                // In interval, should be bold
-                if contains_previously {
-                    cur_words.push(word);
-                } else {
-                    t1_boldtext.push(TextMaybeBold {
-                        text: cur_words.join(" ").clone(),
-                        is_bold: false,
-                    });
-                    cur_words = Vec::new();
-                    cur_words.push(word);
-                }
-                contains_previously = true;
-            } else {
-                // Not in interval now
-                if contains_previously {
-                    t1_boldtext.push(TextMaybeBold {
-                        text: cur_words.join(" ").clone(),
-                        is_bold: true,
-                    });
-                    cur_words = Vec::new();
-                    cur_words.push(word);
-                } else {
-                    cur_words.push(word);
-                }
-                contains_previously = false;
-            }
-        }
-        if !cur_words.is_empty() {
-            if contains_previously {
-                t1_boldtext.push(TextMaybeBold {
-                    text: cur_words.join(" ").clone(),
-                    is_bold: true,
-                });
-            } else {
-                t1_boldtext.push(TextMaybeBold {
-                    text: cur_words.join(" ").clone(),
-                    is_bold: false,
-                });
-            }
-        }
+        let t1_boldtext: Vec<TextMaybeBold> =
+            get_boldtext_segments_from_intervals(&t1_text, &text1_intervals);
 
-        let mut t2_boldtext: Vec<TextMaybeBold> = Vec::new();
-        let mut cur_words: Vec<String> = Vec::new();
-        let mut contains_previously = false;
         let t2_text = texts.get(&result.owner_id2).unwrap();
-        for (i, item) in t2_text.iter().enumerate() {
-            let word = item.clone();
-            if text2_intervals.contains(&i) {
-                // In interval, should be bold
-                if contains_previously {
-                    cur_words.push(word);
-                } else {
-                    t2_boldtext.push(TextMaybeBold {
-                        text: cur_words.join(" ").clone(),
-                        is_bold: false,
-                    });
-                    cur_words = Vec::new();
-                    cur_words.push(word);
-                }
-                contains_previously = true;
-            } else {
-                // Not in interval now
-                if contains_previously {
-                    t2_boldtext.push(TextMaybeBold {
-                        text: cur_words.join(" ").clone(),
-                        is_bold: true,
-                    });
-                    cur_words = Vec::new();
-                    cur_words.push(word);
-                } else {
-                    cur_words.push(word);
-                }
-                contains_previously = false;
-            }
-        }
-        if !cur_words.is_empty() {
-            if contains_previously {
-                t2_boldtext.push(TextMaybeBold {
-                    text: cur_words.join(" ").clone(),
-                    is_bold: true,
-                });
-            } else {
-                t2_boldtext.push(TextMaybeBold {
-                    text: cur_words.join(" ").clone(),
-                    is_bold: false,
-                });
-            }
-        }
+        let t2_boldtext: Vec<TextMaybeBold> =
+            get_boldtext_segments_from_intervals(&t2_text, &text2_intervals);
 
+        // Add the result to an overall vector to be sent to Handlebars
         plag_results.push(HBPlagiarismResult {
             owner_id1: result.owner_id1.clone(),
             owner_id2: result.owner_id2.clone(),
@@ -169,54 +85,6 @@ pub fn output_results(
             text_display1: t1_boldtext,
             text_display2: t2_boldtext,
         })
-
-        /*
-        let t1_intervals_tuples : Vec<BoldInterval> =  text1_intervals
-                .iter()
-                .map(|x| (bounded::Bounded::lower(x), bounded::Bounded::upper(x)))
-                .collect();
-        let t2_intervals_tuples : Vec<BoldInterval> =  text2_intervals
-                .iter()
-                .map(|x| (bounded::Bounded::lower(x), bounded::Bounded::upper(x)))
-                .collect();
-        let cur_pos1 : usize = 0;
-        let t1_interval_idx : usize = 0;
-        let t1_text = texts.get(&result.owner_id1).unwrap();
-        let mut t1_boldtext : Vec<TextMaybeBold> = Vec::new();
-
-        while cur_pos1 < t1_text.len() && {
-
-        }
-        for t1_it in &t1_intervals_tuples {
-            let lower = t1_it.0;
-            let upper = t1_it.1;
-
-            // All words from that cursor to lowerbound are not bold
-            if cur_pos1 < lower {
-                let nonbold_text = Vec::from_iter(t1_text[cur_pos1..lower].iter().cloned());
-                t1_boldtext.push(TextMaybeBold {
-                    text: nonbold_text.join(" "),
-                    is_bold: false
-                })
-            }
-        }
-        */
-        /*
-        plag_results.push(hbplagiarismresult {
-            owner_id1: result.owner_id1.clone(),
-            owner_id2: result.owner_id2.clone(),
-            trusted_owner1: result.trusted_owner1,
-            equal_fragments: result.equal_fragments,
-            text_display1: text1_intervals
-                .iter()
-                .map(|x| (bounded::bounded::lower(x), bounded::bounded::upper(x)))
-                .collect(),
-            text_display2: text2_intervals
-                .iter()
-                .map(|x| (bounded::bounded::lower(x), bounded::bounded::upper(x)))
-                .collect(),
-        })
-        */
     }
 
     let hbars = Handlebars::new();

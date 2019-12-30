@@ -1,3 +1,6 @@
+use crate::result_output_html::TextMaybeBold;
+use gcollections::ops::*;
+use interval::interval_set::*;
 use regex::Regex;
 
 /// Extracts lists of consecutive words of list length n from the provided text.
@@ -35,6 +38,62 @@ pub fn clean_text(text: &str) -> Vec<String> {
         .split_whitespace()
         .map(String::from)
         .collect()
+}
+
+/// Given a list of words and the intervals (union-ed) that are plagiarized:
+///     Separate the words into text segments where plagiarized segments are indicated
+///     in bold.
+pub fn get_boldtext_segments_from_intervals(
+    words: &Vec<String>,
+    text_intervals: &IntervalSet<usize>,
+) -> Vec<TextMaybeBold> {
+    let mut text_segments: Vec<TextMaybeBold> = Vec::new();
+    let mut cur_words: Vec<String> = Vec::new();
+    let mut contains_previously = false;
+    for (i, item) in words.iter().enumerate() {
+        let word = item.clone();
+        if text_intervals.contains(&i) {
+            // In interval, should be bold
+            if contains_previously {
+                cur_words.push(word);
+            } else {
+                text_segments.push(TextMaybeBold {
+                    text: cur_words.join(" ").clone(),
+                    is_bold: false,
+                });
+                cur_words = Vec::new();
+                cur_words.push(word);
+            }
+            contains_previously = true;
+        } else {
+            // Not in interval now
+            if contains_previously {
+                text_segments.push(TextMaybeBold {
+                    text: cur_words.join(" ").clone(),
+                    is_bold: true,
+                });
+                cur_words = Vec::new();
+                cur_words.push(word);
+            } else {
+                cur_words.push(word);
+            }
+            contains_previously = false;
+        }
+    }
+    if !cur_words.is_empty() {
+        if contains_previously {
+            text_segments.push(TextMaybeBold {
+                text: cur_words.join(" ").clone(),
+                is_bold: true,
+            });
+        } else {
+            text_segments.push(TextMaybeBold {
+                text: cur_words.join(" ").clone(),
+                is_bold: false,
+            });
+        }
+    }
+    text_segments
 }
 
 #[cfg(test)]
