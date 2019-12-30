@@ -2,7 +2,7 @@ use crate::{AppSettings, Metric};
 use clap::{App, Arg};
 
 pub fn get_cli_input() -> AppSettings {
-     let app = App::new("Basic Plagiarism Checker")
+    let app = App::new("Basic Plagiarism Checker")
         .about("Checks for plagiarism using very basic metrics between different text files")
         .version("v0.1")
         .author("Sriram Sami (@frizensami on GitHub)")

@@ -113,7 +113,7 @@ impl PlagiarismDatabase {
     ///     for all textfragments currently in database
     pub fn check_untrusted_plagiarism(&self) -> Vec<PlagiarismResult> {
         let mut results: Vec<PlagiarismResult> = Vec::new();
-        // We don't compare the same items twice, 
+        // We don't compare the same items twice,
         //  have to check since pulling from same list
         for (sourceidx, source) in self.untrusted_texts.values().enumerate() {
             for against in self.untrusted_texts.values().skip(sourceidx + 1) {

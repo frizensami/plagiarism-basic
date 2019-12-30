@@ -219,11 +219,6 @@ pub fn output_results(
         */
     }
 
-    println!(
-        "Results: \n{}\n",
-        serde_json::to_string(&plag_results).unwrap()
-    );
-
     let hbars = Handlebars::new();
     let mut source_template = File::open(&"./templates/report.hbs").unwrap();
     create_dir_all("./www/").unwrap();
