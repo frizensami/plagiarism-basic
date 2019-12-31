@@ -9,6 +9,9 @@ use std::fs::create_dir_all;
 use std::fs::File;
 use std::process::Command;
 
+// Used to find the templates directory
+const TEMPLATE_PATH: &'static str = concat!(env!("CARGO_MANIFEST_DIR"), "/templates/report.hbs");
+
 // Send a set of these over for each text display
 #[derive(Serialize, PartialEq, Eq, Debug)]
 pub struct TextMaybeBold {
@@ -35,6 +38,7 @@ struct HBPlagiarismResult {
 pub fn output_results(
     results: &mut Vec<PlagiarismResult>,
     texts: HashMap<TextOwnerID, Vec<String>>,
+    open_html_after: bool,
 ) {
     // We want the results by most significant first (most matches)
     results.sort_by(|a, b| {
@@ -99,7 +103,7 @@ pub fn output_results(
     }
 
     let hbars = Handlebars::new();
-    let mut source_template = File::open(&"./templates/report.hbs").unwrap();
+    let mut source_template = File::open(TEMPLATE_PATH).unwrap();
     create_dir_all("./www/").unwrap();
     let mut output_file = File::create("www/report.html").unwrap();
 
@@ -107,10 +111,8 @@ pub fn output_results(
         .render_template_source_to_write(&mut source_template, &plag_results, &mut output_file)
         .unwrap();
 
-    println!("./www/report.html generated! Opening automatically if Linux...");
-
     // Open the report using the OS-preferred method if possible
-    if cfg!(target_os = "linux") {
+    if open_html_after && cfg!(target_os = "linux") {
         Command::new("xdg-open")
             .args(&["./www/report.html"])
             .output()

@@ -9,16 +9,18 @@ pub fn get_file_contents_from_dir(dir: &str) -> io::Result<Vec<(String, String)>
     let filepaths = get_file_paths_from_dir(dir)?;
     let mut file_id_contents: Vec<(String, String)> = Vec::new();
     for filepath in filepaths {
-        println!(
-            "Checking filename {:?}",
-            filepath
-                .file_name()
-                .expect("File name could not be converted from an OsStr to a String")
-        );
+        let file_path_str = filepath
+            .file_name()
+            .expect("File name could not be converted from an OsStr to a String")
+            .to_str()
+            .unwrap()
+            .to_string();
         file_id_contents.push((
-            filepath.file_name().unwrap().to_str().unwrap().to_string(),
-            fs::read_to_string(filepath)
-                .expect("This text file cannot be read as UTF-8! Please convert it to UTF-8."),
+            file_path_str.clone(),
+            fs::read_to_string(filepath).expect(&format!(
+                "{} cannot be read as an UTF-8 file! Please ensure it is in the UTF-8 format.",
+                file_path_str
+            )),
         ))
     }
     Ok(file_id_contents)

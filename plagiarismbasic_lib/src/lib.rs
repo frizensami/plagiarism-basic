@@ -25,6 +25,9 @@ pub struct AppSettings {
     pub metric: Metric,
     pub udir: String,
     pub tdir: String,
+    pub output_cli: bool,
+    pub output_html: bool,
+    pub open_html_after: bool,
 }
 
 /// Reads settings from CLI input.
@@ -33,23 +36,14 @@ pub struct AppSettings {
 /// Runs the plagiarism algorithm with settings from CLI
 /// Prints results on CLI
 /// Renders results as HTML and opens it automatically using xdg-open if possible
-pub fn run_plagiarism_checks(appsettings: AppSettings) {
-    // Read settings for algorithm from cli
-    let AppSettings {
-        n,
-        s,
-        metric,
-        udir,
-        tdir,
-    }: AppSettings = appsettings;
-
+pub fn run_plagiarism_checks(appsettings: &AppSettings) {
     // Read all file contents in both specified directories
     // Fail with panic if any file is not UTF8, or any other error
-    let untrusted_contents = get_file_contents_from_dir(&udir).unwrap();
-    let trusted_contents = get_file_contents_from_dir(&tdir).unwrap();
+    let untrusted_contents = get_file_contents_from_dir(&appsettings.udir).unwrap();
+    let trusted_contents = get_file_contents_from_dir(&appsettings.tdir).unwrap();
 
     // Add text to the DB
-    let mut db = PlagiarismDatabase::new(n, s, metric);
+    let mut db = PlagiarismDatabase::new(appsettings.n, appsettings.s, appsettings.metric);
     for (id, val) in untrusted_contents {
         db.add_untrusted_text(&id, &val);
     }
@@ -62,10 +56,18 @@ pub fn run_plagiarism_checks(appsettings: AppSettings) {
     let mut t_result: Vec<PlagiarismResult> = db.check_trusted_plagiarism();
 
     // Print them separately on the CLI
-    result_printer::print_results_ut(&mut ut_result);
-    result_printer::print_results_t(&mut t_result);
+    if appsettings.output_cli {
+        result_printer::print_results_ut(&mut ut_result);
+        result_printer::print_results_t(&mut t_result);
+    }
 
-    // Pass them together to the HTML output module
-    ut_result.append(&mut t_result);
-    result_output_html::output_results(&mut ut_result, db.get_all_cleantext());
+    if appsettings.output_html {
+        // Pass them together to the HTML output module
+        ut_result.append(&mut t_result);
+        result_output_html::output_results(
+            &mut ut_result,
+            db.get_all_cleantext(),
+            appsettings.open_html_after,
+        );
+    }
 }

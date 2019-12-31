@@ -79,32 +79,35 @@ Some setup is required:
 1. After these steps are done, the `plagiarism-basic` executable can be run and the path to these folders can be specified in the arguments to the executable.
 ```
 $ ./plagiarism-basic -h
-Basic Plagiarism Checker v0.1
+Basic Plagiarism Checker 
 Sriram Sami (@frizensami on GitHub)
 Checks for plagiarism using very basic metrics between different text files
 
 USAGE:
-    plagiarism-basic -m <metric> -n <sensitivity> -s <similarity> -t <trusted-directory> -u <untrusted-directory>
+    plagiarism-basic [FLAGS] --metric <metric> --sensitivity <sensitivity> --similarity <similarity> --trusted <trusted-directory> --untrusted <untrusted-directory>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -h, --help        Prints help information
+        --openhtml    If the HTML file should be opened automatically after writing
+        --cli         If the results should be printed to the command line
+        --html        If the results should be printed to a HTML file
+    -V, --version     Prints version information
 
 OPTIONS:
-    -m <metric>                     Sets the metric (function) used for similarity testing. Equal checks that both
-                                    strings are equal, and lev uses the Levenshtein distance [possible values: equal,
-                                    lev]
-    -n <sensitivity>                Sets the number of words required to form a unit of plagiarism checking
-    -s <similarity>                 Sets the threshold value for plagiarism to be detected by a chosen metric
-    -t <trusted-directory>          Sets the directory containing trusted text files. Each file will be treated as a
-                                    separate possible plagiarism source text.
-    -u <untrusted-directory>        Sets the directory containing untrusted text files. Each file will be treated as a
-                                    separate submission by a separate person.
+    -m, --metric <metric>                    Sets the metric (function) used for similarity testing. Equal checks that
+                                             both strings are equal, and lev uses the Levenshtein distance [possible
+                                             values: equal, lev]
+    -n, --sensitivity <sensitivity>          Sets the number of words required to form a unit of plagiarism checking
+    -s, --similarity <similarity>            Sets the threshold value for plagiarism to be detected by a chosen metric
+    -t, --trusted <trusted-directory>        Sets the directory containing trusted text files. Each file will be treated
+                                             as a separate possible plagiarism source text.
+    -u, --untrusted <untrusted-directory>    Sets the directory containing untrusted text files. Each file will be
+                                             treated as a separate submission by a separate person.
 ```
 ## 9. Example output
 **Command:**
 ```
-./plagiarism-basic -t testfiles/cs-corpus/t/ -u testfiles/cs-corpus/ut/ -m equal -n 10 -s 0
+./plagiarism-basic -t testfiles/cs-corpus/t/ -u testfiles/cs-corpus/ut/ -m equal -n 10 -s 0 --openhtml --cli --html
 ```
 **Output (Basic HTML)**
 
