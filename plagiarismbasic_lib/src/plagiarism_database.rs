@@ -78,14 +78,14 @@ impl PlagiarismDatabase {
     }
 
     /// Adds a text string as potential plagiarism source material
-    pub fn add_trusted_text(&mut self, owner_id: &String, text: &str) {
+    pub fn add_trusted_text(&mut self, owner_id: &str, text: &str) {
         let clean_text_words = clean_text(text);
         let (fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
         self.trusted_texts.insert(
-            owner_id.clone(),
+            owner_id.to_string(),
             TextEntry {
-                owner: owner_id.clone(),
+                owner: owner_id.to_string(),
                 clean_text_words,
                 fragments,
                 fragment_locations,
@@ -94,14 +94,14 @@ impl PlagiarismDatabase {
     }
 
     // Adds a text string as a potential plagiarized string
-    pub fn add_untrusted_text(&mut self, owner_id: &String, text: &str) {
+    pub fn add_untrusted_text(&mut self, owner_id: &str, text: &str) {
         let clean_text_words = clean_text(text);
         let (fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
         self.untrusted_texts.insert(
-            owner_id.clone(),
+            owner_id.to_string(),
             TextEntry {
-                owner: owner_id.clone(),
+                owner: owner_id.to_string(),
                 clean_text_words,
                 fragments,
                 fragment_locations,
@@ -181,10 +181,10 @@ impl PlagiarismDatabase {
     ///     Returns vectors representing where they can be found in their respective texts
     fn fragments_to_locations(
         &self,
-        f1: &String,
-        owner1: &String,
-        f2: &String,
-        owner2: &String,
+        f1: &str,
+        owner1: &str,
+        f2: &str,
+        owner2: &str,
     ) -> (Vec<FragmentLocation>, Vec<FragmentLocation>) {
         let f1_locations: Vec<FragmentLocation> =
             self.untrusted_texts[owner1].fragment_locations[f1].clone();
@@ -197,10 +197,10 @@ impl PlagiarismDatabase {
     ///     This checks the trusted_texts map for the first owner
     fn fragments_to_locations_trusted(
         &self,
-        f1: &String,
-        owner1: &String,
-        f2: &String,
-        owner2: &String,
+        f1: &str,
+        owner1: &str,
+        f2: &str,
+        owner2: &str,
     ) -> (Vec<FragmentLocation>, Vec<FragmentLocation>) {
         let f1_locations: Vec<FragmentLocation> =
             self.trusted_texts[owner1].fragment_locations[f1].clone();
