@@ -23,6 +23,7 @@ Online plagiarism detection tools usually come with a few constraints. It could 
     - [Cargo Install](#cargo-install)
     - [Building from source](#building-from-source)
 - [Usage](#usage)
+- [Example output](#example-output)
 - [Technical Details](#technical-details)
     - [Defining Plagiarism](#defining-plagiarism)
     - [Choosing n, s and M](#choosing-n-s-and-m)
@@ -71,9 +72,9 @@ Download a binary from the [Releases](https://github.com/frizensami/plagiarism-b
 
 ## Usage
 Some setup is required:
-1. Two folders need to be created anywhere, a "trusted" folder and an "untrusted" folder.
-1. The "trusted" folder may contain any number of files in its top level directory. Each file will be treated as a separate trusted source of text. This is where you might put the text of the top 10 Google search results, for e.g.
-1. The "untrusted" folder may contain any number of files in its top level directory. Each file will be treated as a separate untrusted source of text. This is where you would put each separate "submission" from a student, for e.g.
+1. Two folders need to be created anywhere, a "trusted" folder and an "untrusted" folder. As an example of how they should be structured, check the `testfiles/cs-corpus` directory of the GitHub repository.
+1. The "trusted" folder may contain any number of files in its top-level directory. Each file will be treated as a separate trusted source of text. This is where you might put the text of the top 10 Google search results, for e.g.
+1. The "untrusted" folder may contain any number of files in its top-level directory. Each file will be treated as a separate untrusted source of text. This is where you would put each separate "submission" from a student, for e.g.
 1. The files in both folders must only contain UTF-8 interpretable text. The name of the file will be used in the output of the program, so naming the files appropriately is a good idea. 
 1. After these steps are done, the `plagiarism-basic` executable can be run and the path to these folders can be specified in the arguments to the executable.
 ```
@@ -100,7 +101,14 @@ OPTIONS:
     -u <untrusted-directory>        Sets the directory containing untrusted text files. Each file will be treated as a
                                     separate submission by a separate person.
 ```
+## Example output
+**Command:**
+```
+./plagiarism-basic -t testfiles/cs-corpus/t/ -u testfiles/cs-corpus/ut/ -m equal -n 10 -s 0
+```
+**Output (Basic HTML)**
 
+![HTML output example](./readme-assets/plag_v4_html.png)
 
 ## Technical Details
 ### Defining Plagiarism
