@@ -1,11 +1,11 @@
 [package]
 name = "plagiarismbasic_lib"
-version = "0.5.1-unstable"
+version = "0.5.2"
 authors = ["Sriram Sami <frizensami@gmail.com>"]
 edition = "2018"
 description = "Basic plagiarism checker written in Rust"
 license = "MIT"
-readme = "../README.md"
+readme = "README.md"
 repository = "https://github.com/frizensami/plagiarism-basic"
 keywords = ["lib", "plagiarism", "wip"]
 
