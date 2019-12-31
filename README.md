@@ -1,76 +1,76 @@
 # Basic Plagiarism Detection
-## Motivation
+## 1. Motivation
 Online plagiarism detection tools usually come with a few constraints. It could be a paid-only service, the number of characters to check could be artificially limited, etc. This tool aims to fill a gap where:
 - Plagiarism cases are usually simple copy-paste jobs of a few text phrases with minor edits,
 - Paying for an online tool is unpalatable,
 - The source texts that might be copied from can be put together manually by the user into a few files (i.e. the Internet is not automatically searched by the tool), or the only concern is people copying from each other, and
 - Running a command-line tool is simple enough for the user
 
-## Table of Contents
+## 2. Table of Contents
 <!-- TOC depthFrom:2 -->
 
-- [Motivation](#motivation)
-- [Table of Contents](#table-of-contents)
-- [Philosophy](#philosophy)
-- [Definitions](#definitions)
-- [Project Objectives](#project-objectives)
-    - [Hard Objectives](#hard-objectives)
-    - [Soft (Optimization) Objectives](#soft-optimization-objectives)
-    - [Anti-Objectives](#anti-objectives)
-- [Project Status](#project-status)
-- [Installation Options](#installation-options)
-    - [Binary Release](#binary-release)
-    - [Cargo Install](#cargo-install)
-    - [Building from source](#building-from-source)
-- [Usage](#usage)
-- [Example output](#example-output)
-- [Technical Details](#technical-details)
-    - [Defining Plagiarism](#defining-plagiarism)
-    - [Choosing n, s and M](#choosing-n-s-and-m)
+- [1. Motivation](#1-motivation)
+- [2. Table of Contents](#2-table-of-contents)
+- [3. Philosophy](#3-philosophy)
+- [4. Definitions](#4-definitions)
+- [5. Project Objectives](#5-project-objectives)
+    - [5.1. Hard Objectives](#51-hard-objectives)
+    - [5.2. Soft (Optimization) Objectives](#52-soft-optimization-objectives)
+    - [5.3. Anti-Objectives](#53-anti-objectives)
+- [6. Project Status](#6-project-status)
+- [7. Installation Options](#7-installation-options)
+    - [7.1. Binary Release](#71-binary-release)
+    - [7.2. Cargo Install](#72-cargo-install)
+    - [7.3. Building from source](#73-building-from-source)
+- [8. Usage](#8-usage)
+- [9. Example output](#9-example-output)
+- [10. Technical Details](#10-technical-details)
+    - [10.1. Defining Plagiarism](#101-defining-plagiarism)
+    - [10.2. Choosing n, s and M](#102-choosing-n-s-and-m)
 
 <!-- /TOC -->
-## Philosophy
+## 3. Philosophy
 This tool is really only to catch amateur attempts at plagiarism. Whatever your opinion is on plagiarism tools, we can probably agree that lazy copy-paste jobs of chunks of text should probably not be respected. Therefore, this tool is designed to make detecting these situations easier.
 
-## Definitions
+## 4. Definitions
 - Untrusted: Something that might be plagiarised
 - Trusted: Something that is definitely not plagiarised, but might be a source used in plagiarism
 
-## Project Objectives
-### Hard Objectives
+## 5. Project Objectives
+### 5.1. Hard Objectives
 - Detect potential cases of plagiarism between multiple untrusted strings (intra-source plagiarism)
 - Detect potential cases of plagiarism between trusted source strings and untrusted strings (external-source plagiarism)
 
-### Soft (Optimization) Objectives
+### 5.2. Soft (Optimization) Objectives
 1. Minimizing false positive and false negative detection rates
 2. Fastest possible detection speed without compromising objective 1.
 
-### Anti-Objectives
+### 5.3. Anti-Objectives
 - The project **does not aim to search the Internet automatically** for potential plagiarism sources. These sources have to be assembled by users manually into text files in the `trusted` folder.
 - This is **not a tool for code plagiarism detection!**. Please refer to [Stanford's MOSS](https://theory.stanford.edu/~aiken/moss/) instead.
 
-## Project Status
+## 6. Project Status
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
 - The `lev` metric is too slow for large datasets, but promises more fine-grained control over how different two phrases can be.
 - The current output format is both in HTML and in the terminal. In the HTML output, both texts are displayed side-by-side, with all detected plagiarized phrases being highlighted in bold. The percent of plagiarism detected (# plagiarized words / all words * 100%) is also indicated for each source pair. The goal is for all of this to be color-coded, which is a project priority.
 
-## Installation Options
-### Binary Release
+## 7. Installation Options
+### 7.1. Binary Release
 Download a binary from the [Releases](https://github.com/frizensami/plagiarism-basic/releases/) page. Currently only `x86_64-unknown-linux-gnu` targets are supported. 
 
-### Cargo Install
+### 7.2. Cargo Install
 1. Install the `rust` language toolchain (https://www.rust-lang.org/tools/install).
 1. Run `cargo install plagiarism-basic`
 1. The executable should be installed from `crates.io` automatically by `cargo`. 
 
-### Building from source
+### 7.3. Building from source
 1. The previous two options will likely distribute an outdated version of this tool. For the most up-to-date code, building from source is recommended.
 1. Install the `rust` language toolchain (https://www.rust-lang.org/tools/install).
 1. `git clone` this repository to a folder of your choice.
 1. Run `cargo build --release` in that folder.
 1. The `target/release` folder will contain the `plagiarism-basic` executable to be used.
 
-## Usage
+## 8. Usage
 Some setup is required:
 1. Two folders need to be created anywhere, a "trusted" folder and an "untrusted" folder. As an example of how they should be structured, check the `testfiles/cs-corpus` directory of the GitHub repository.
 1. The "trusted" folder may contain any number of files in its top-level directory. Each file will be treated as a separate trusted source of text. This is where you might put the text of the top 10 Google search results, for e.g.
@@ -101,7 +101,7 @@ OPTIONS:
     -u <untrusted-directory>        Sets the directory containing untrusted text files. Each file will be treated as a
                                     separate submission by a separate person.
 ```
-## Example output
+## 9. Example output
 **Command:**
 ```
 ./plagiarism-basic -t testfiles/cs-corpus/t/ -u testfiles/cs-corpus/ut/ -m equal -n 10 -s 0
@@ -110,8 +110,8 @@ OPTIONS:
 
 ![HTML output example](./readme-assets/plag_v4_html.png)
 
-## Technical Details
-### Defining Plagiarism
+## 10. Technical Details
+### 10.1. Defining Plagiarism
 Informally, two strings that are long enough and with the same number of words that are "similar enough" by a chosen metric are considered to be plagiarised. 
 
 Formally:
@@ -125,7 +125,7 @@ Formally:
     - Converting all letters to lowercase
     - Removing all non alphanumeric characters
 
-### Choosing n, s and M
+### 10.2. Choosing n, s and M
 - `n` is a user-chosen value to indicate **how many words** a string needs to be before being considered for plagiarism
 - `s` is a user-chosen value to indicate **how similar** the strings have to be before being considered for plagiarism
 - `M` is the **metric** used to evaluate the strings for similarity. They can be one of the following
