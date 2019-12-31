@@ -5,8 +5,8 @@ use std::time::Duration;
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("app-group");
     group.warm_up_time(Duration::from_secs(5));
-    group.measurement_time(Duration::from_secs(120));
-    group.sample_size(20);
+    group.measurement_time(Duration::from_secs(60));
+    group.sample_size(10);
 
     let settings = AppSettings {
         n: 10,
