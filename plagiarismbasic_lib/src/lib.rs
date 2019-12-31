@@ -42,8 +42,23 @@ pub fn run_plagiarism_checks(appsettings: &AppSettings) {
     // Fail with panic if any file is not UTF8, or any other error
     let untrusted_contents = get_file_contents_from_dir(&appsettings.udir).unwrap();
 
+    // Try to add ignore-text if specified. This is required early for optimization.
+    let mut ignored_texts: Vec<String> = Vec::new();
+    if let Some(idir) = &appsettings.idir {
+        let ignore_contents = get_file_contents_from_dir(&idir).unwrap();
+        for (_, val) in ignore_contents {
+            ignored_texts.push(val);
+        }
+    }
+
     // Add text to the DB
-    let mut db = PlagiarismDatabase::new(appsettings.n, appsettings.s, appsettings.metric);
+    let mut db = PlagiarismDatabase::new(
+        appsettings.n,
+        appsettings.s,
+        appsettings.metric,
+        ignored_texts,
+    );
+
     for (id, val) in untrusted_contents {
         db.add_untrusted_text(&id, &val);
     }

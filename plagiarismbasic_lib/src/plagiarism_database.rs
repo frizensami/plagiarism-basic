@@ -48,20 +48,42 @@ pub struct PlagiarismDatabase {
     trusted_texts: HashMap<TextOwnerID, TextEntry>,
     /// Mapping owner ID to the processed text entry for that owner
     untrusted_texts: HashMap<TextOwnerID, TextEntry>,
+    /// Mapping owner ID to the text contents to ignore
+    ignored_texts: HashSet<String>,
 }
 
 impl PlagiarismDatabase {
     /// Initializes the plagiarism sensitivity and similarity metric values
     ///     and the actual metric type to be used in computing plagiarism
     ///     scores
-    pub fn new(n: usize, s: usize, metric: Metric) -> PlagiarismDatabase {
+    pub fn new(
+        n: usize,
+        s: usize,
+        metric: Metric,
+        ignored_texts: Vec<String>,
+    ) -> PlagiarismDatabase {
         PlagiarismDatabase {
             n,
             s,
             metric,
             trusted_texts: HashMap::new(),
             untrusted_texts: HashMap::new(),
+            ignored_texts: PlagiarismDatabase::construct_ignored_texts(&ignored_texts, n),
         }
+    }
+
+    /// Creates a hashset of strings to ignore at the start
+    ///     Doesn't take an owner ID as we just want to collate the
+    ///     strings together to avoid scaling badly with the number of
+    ///     ignored texts as well
+    fn construct_ignored_texts(texts: &Vec<String>, n: usize) -> HashSet<String> {
+        let mut ignored_text_set: HashSet<String> = HashSet::new();
+        for text in texts {
+            let clean_text_words = clean_text(text);
+            let (fragments, _) = PlagiarismDatabase::get_textfragments(&clean_text_words, n);
+            ignored_text_set.extend(fragments)
+        }
+        ignored_text_set
     }
 
     /// Gets only the ID -> clean text mapping for all texts
@@ -80,8 +102,13 @@ impl PlagiarismDatabase {
     /// Adds a text string as potential plagiarism source material
     pub fn add_trusted_text(&mut self, owner_id: &str, text: &str) {
         let clean_text_words = clean_text(text);
-        let (fragments, fragment_locations) =
+        let (mut fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
+        // Remove strings that match the ignored list (equality test directly)
+        fragments = fragments
+            .difference(&self.ignored_texts)
+            .map(String::from)
+            .collect();
         self.trusted_texts.insert(
             owner_id.to_string(),
             TextEntry {
@@ -93,11 +120,16 @@ impl PlagiarismDatabase {
         );
     }
 
-    // Adds a text string as a potential plagiarized string
+    /// Adds a text string as a potential plagiarized string
     pub fn add_untrusted_text(&mut self, owner_id: &str, text: &str) {
         let clean_text_words = clean_text(text);
-        let (fragments, fragment_locations) =
+        let (mut fragments, fragment_locations) =
             PlagiarismDatabase::get_textfragments(&clean_text_words, self.n);
+        // Remove strings that match the ignored list (equality test directly)
+        fragments = fragments
+            .difference(&self.ignored_texts)
+            .map(String::from)
+            .collect();
         self.untrusted_texts.insert(
             owner_id.to_string(),
             TextEntry {
