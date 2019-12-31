@@ -1,0 +1,2 @@
+## Note
+This binary is only a command-line wrapper around the `plagiarismbasic_lib` library. Further information (including command line options) can be found at [the GitHub repository for this project](https://github.com/frizensami/plagiarism-basic).

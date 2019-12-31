@@ -1,0 +1,2 @@
+## Note
+This is a library to provide core functionality for the `plagiarism-basic` executuable. It was split from the binary crate to allow for benchmark testing. The actual information for this project can be found at [the GitHub repository](https://github.com/frizensami/plagiarism-basic).

@@ -316,15 +316,15 @@ dependencies = [
 
 [[package]]
 name = "plagiarism-basic"
-version = "0.5.0-beta"
+version = "0.5.1-unstable"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "plagiarismbasic_lib 0.5.0-beta",
+ "plagiarismbasic_lib 0.5.1-unstable",
 ]
 
 [[package]]
 name = "plagiarismbasic_lib"
-version = "0.5.0-beta"
+version = "0.5.1-unstable"
 dependencies = [
  "gcollections 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "handlebars 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
