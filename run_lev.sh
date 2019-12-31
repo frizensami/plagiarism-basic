@@ -1,2 +1,2 @@
 #!/bin/bash
-cargo run -- -t testfiles/t/ -u testfiles/ut/ -m lev -n 5 -s 1
+cargo run -- -t plagiarismbasic_lib/testfiles/t/ -u plagiarismbasic_lib/testfiles/ut/ -m lev -n 5 -s 1

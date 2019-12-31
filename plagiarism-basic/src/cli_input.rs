@@ -1,5 +1,5 @@
-use crate::{AppSettings, Metric};
 use clap::{App, Arg};
+use plagiarismbasic_lib::{AppSettings, Metric};
 
 pub fn get_cli_input() -> AppSettings {
     let app = App::new("Basic Plagiarism Checker")
