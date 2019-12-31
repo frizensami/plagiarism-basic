@@ -1,6 +1,7 @@
 use crate::result_output_html::TextMaybeBold;
 use gcollections::ops::*;
 use interval::interval_set::*;
+use lazy_static::lazy_static;
 use regex::Regex;
 
 /// Extracts lists of consecutive words of list length n from the provided text.
@@ -26,13 +27,16 @@ pub fn extract_clean_word_ngrams(words: &Vec<String>, n: usize) -> Vec<String> {
 /// Removes nonalphanumeric characters, redundant spaces, newlines,
 ///     converts to lowecase and trims text
 pub fn clean_text(text: &str) -> Vec<String> {
-    let remove_nonalpha = Regex::new(r"[^A-Za-z0-9 ]").unwrap();
-    let remove_spaces = Regex::new(r"\s+").unwrap();
+    // Compile this only once
+    lazy_static! {
+        static ref REMOVE_NONALPHA: Regex = Regex::new(r"[^A-Za-z0-9 ]").unwrap();
+        static ref REMOVE_SPACES: Regex = Regex::new(r"\s+").unwrap();
+    }
     // Remove all newlines and convert to lowercase
     let mut new_text: String = text.replace('\n', " ").to_lowercase();
     // Remove all non alphanumeric+space chars and remove redundant spaces
-    new_text = remove_nonalpha.replace_all(&new_text, " ").to_string();
-    remove_spaces
+    new_text = REMOVE_NONALPHA.replace_all(&new_text, " ").to_string();
+    REMOVE_SPACES
         .replace_all(&new_text, " ")
         .trim()
         .split_whitespace()
