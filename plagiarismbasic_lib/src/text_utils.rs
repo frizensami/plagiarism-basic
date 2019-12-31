@@ -67,7 +67,7 @@ pub fn get_boldtext_segments_from_intervals(
             } else {
                 if !cur_words.is_empty() {
                     text_segments.push(TextMaybeBold {
-                        text: cur_words.join(" ").clone(),
+                        text: cur_words.join(" "),
                         is_bold: false,
                     });
                 }
@@ -80,7 +80,7 @@ pub fn get_boldtext_segments_from_intervals(
             if contains_previously {
                 if !cur_words.is_empty() {
                     text_segments.push(TextMaybeBold {
-                        text: cur_words.join(" ").clone(),
+                        text: cur_words.join(" "),
                         is_bold: true,
                     });
                 }
@@ -95,12 +95,12 @@ pub fn get_boldtext_segments_from_intervals(
     if !cur_words.is_empty() {
         if contains_previously {
             text_segments.push(TextMaybeBold {
-                text: cur_words.join(" ").clone(),
+                text: cur_words.join(" "),
                 is_bold: true,
             });
         } else {
             text_segments.push(TextMaybeBold {
-                text: cur_words.join(" ").clone(),
+                text: cur_words.join(" "),
                 is_bold: false,
             });
         }

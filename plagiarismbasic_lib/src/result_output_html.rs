@@ -10,7 +10,7 @@ use std::fs::File;
 use std::process::Command;
 
 // Used to find the templates directory
-const TEMPLATE_PATH: &'static str = concat!(env!("CARGO_MANIFEST_DIR"), "/templates/report.hbs");
+const TEMPLATE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/templates/report.hbs");
 
 // Send a set of these over for each text display
 #[derive(Serialize, PartialEq, Eq, Debug)]

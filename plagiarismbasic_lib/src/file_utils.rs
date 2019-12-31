@@ -17,10 +17,12 @@ pub fn get_file_contents_from_dir(dir: &str) -> io::Result<Vec<(String, String)>
             .to_string();
         file_id_contents.push((
             file_path_str.clone(),
-            fs::read_to_string(filepath).expect(&format!(
-                "{} cannot be read as an UTF-8 file! Please ensure it is in the UTF-8 format.",
-                file_path_str
-            )),
+            fs::read_to_string(filepath).unwrap_or_else(|_| {
+                panic!(
+                    "{} cannot be read as an UTF-8 file! Please ensure it is in the UTF-8 format.",
+                    file_path_str
+                )
+            }),
         ))
     }
     Ok(file_id_contents)
