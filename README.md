@@ -71,12 +71,16 @@ Download a binary from the [Releases](https://github.com/frizensami/plagiarism-b
 1. The `target/release` folder will contain the `plagiarism-basic` executable to be used.
 
 ## 8. Usage
-Some setup is required:
-1. Two folders need to be created anywhere, a "trusted" folder and an "untrusted" folder. As an example of how they should be structured, check the `testfiles/cs-corpus` directory of the GitHub repository.
-1. The "trusted" folder may contain any number of files in its top-level directory. Each file will be treated as a separate trusted source of text. This is where you might put the text of the top 10 Google search results, for e.g.
-1. The "untrusted" folder may contain any number of files in its top-level directory. Each file will be treated as a separate untrusted source of text. This is where you would put each separate "submission" from a student, for e.g.
-1. The files in both folders must only contain UTF-8 interpretable text. The name of the file will be used in the output of the program, so naming the files appropriately is a good idea. 
-1. After these steps are done, the `plagiarism-basic` executable can be run and the path to these folders can be specified in the arguments to the executable.
+Some setup is required to use this tool.
+- There are **three folders** where source text can be kept. These folders can be **named anything you'd like**, but the names must be specified in the options to the program later.
+    1. **Mandatory**: an **"untrusted" folder** to hold source texts that might be guilty of plagiarism. This could be where student submissions are placed.
+    1.  Not mandatory: A **"trusted" folder** where texts that are highly likely to be copied from can be placed. This could contain text files with the content of the top ten Google search results for a particular question, or reference text material that is likely to be copied.
+    1. Not mandatory: An **"ignore" folder** where strings of text that should be ignored are placed. If students are answering a particular essay question, you might want to put that question itself as a source in the "ignore" folder so that those strings in students answers will not trigger a plagiarism warning.
+- An example can be found in the `plagiarismbasic_lib/testfiles/cs-corpus` directory of the GitHub repository.
+- Each folder may contain any number of files in its top-level directory (i.e. subdirectories inside those folders will be ignored). Each file will be treated as a separate source of text (whether trusted, untrusted, or content to be ignored). 
+- The files in both folders must only contain UTF-8 interpretable text (which should be the case barring any really special characters). 
+- The name of the file will be used in the output of the program, so naming the files appropriately is a good idea. 
+- After these steps are done, the `plagiarism-basic` executable can be run and the path to these folders can be specified in the arguments to the executable.
 ```
 $ ./plagiarism-basic -h
 Basic Plagiarism Checker 
@@ -84,7 +88,7 @@ Sriram Sami (@frizensami on GitHub)
 Checks for plagiarism using very basic metrics between different text files
 
 USAGE:
-    plagiarism-basic [FLAGS] --metric <metric> --sensitivity <sensitivity> --similarity <similarity> --trusted <trusted-directory> --untrusted <untrusted-directory>
+    plagiarism-basic [FLAGS] [OPTIONS] --metric <metric> --sensitivity <sensitivity> --similarity <similarity> --untrusted <untrusted-directory>
 
 FLAGS:
     -h, --help        Prints help information
@@ -94,6 +98,8 @@ FLAGS:
     -V, --version     Prints version information
 
 OPTIONS:
+    -i, --ignore <ignore-directory>          Sets the directory containing text files with content to be ignored from
+                                             plagiarism checks.
     -m, --metric <metric>                    Sets the metric (function) used for similarity testing. Equal checks that
                                              both strings are equal, and lev uses the Levenshtein distance [possible
                                              values: equal, lev]
@@ -129,8 +135,8 @@ Formally:
     - Removing all non alphanumeric characters
 
 ### 10.2. Choosing n, s and M
-- `n` is a user-chosen value to indicate **how many words** a string needs to be before being considered for plagiarism
-- `s` is a user-chosen value to indicate **how similar** the strings have to be before being considered for plagiarism
+- `n` is a user-chosen value to indicate **how many words** a string needs to be before being considered for plagiarism. If the value is too low, the false positive rate will be very high (imagine matching the phrase "I am" for `n = 2`). If the value is too high, correspondingly, the false negative rate will be too high.
+- `s` is a user-chosen value to indicate **how similar** the strings have to be before being considered for plagiarism. This follows the opposite false positive/negative trend as `n` (too high = too many false positive and vice versa), but only affects results when a non `equal` metric is used.
 - `M` is the **metric** used to evaluate the strings for similarity. They can be one of the following
     - `equal`: checks if the strings are equal, ignores `s` value. Uses hashed set intersections, very fast.
     - `lev`: uses the Levenshtein distance between the words, uses the `s` value. Compares between all combinations of string fragments, very slow at the moment.

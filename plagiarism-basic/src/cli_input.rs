@@ -15,8 +15,12 @@ pub fn get_cli_input() -> AppSettings {
                 .short("t")
                 .long("trusted")
                 .help("Sets the directory containing trusted text files. Each file will be treated as a separate possible plagiarism source text.")
-                .takes_value(true)
-                .required(true))
+                .takes_value(true))
+        .arg(Arg::with_name("ignore-directory")
+                .short("i")
+                .long("ignore")
+                .help("Sets the directory containing text files with content to be ignored from plagiarism checks.")
+                .takes_value(true))
         .arg(Arg::with_name("metric")
                 .short("m")
                 .long("metric")
@@ -59,7 +63,8 @@ pub fn get_cli_input() -> AppSettings {
 
     // Get info from directories
     let udir: &str = matches.value_of("untrusted-directory").unwrap();
-    let tdir: &str = matches.value_of("trusted-directory").unwrap();
+    let tdir: Option<String> = matches.value_of("trusted-directory").map(|x| x.to_string());
+    let idir: Option<String> = matches.value_of("ignore-directory").map(|x| x.to_string());
 
     // Get flag options
     let output_cli = matches.is_present("output-cli");
@@ -70,7 +75,8 @@ pub fn get_cli_input() -> AppSettings {
         s,
         metric,
         udir: udir.to_string(),
-        tdir: tdir.to_string(),
+        tdir,
+        idir,
         output_cli,
         output_html,
         open_html_after,

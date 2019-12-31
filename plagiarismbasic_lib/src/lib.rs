@@ -24,7 +24,8 @@ pub struct AppSettings {
     pub s: usize,
     pub metric: Metric,
     pub udir: String,
-    pub tdir: String,
+    pub tdir: Option<String>,
+    pub idir: Option<String>,
     pub output_cli: bool,
     pub output_html: bool,
     pub open_html_after: bool,
@@ -40,15 +41,19 @@ pub fn run_plagiarism_checks(appsettings: &AppSettings) {
     // Read all file contents in both specified directories
     // Fail with panic if any file is not UTF8, or any other error
     let untrusted_contents = get_file_contents_from_dir(&appsettings.udir).unwrap();
-    let trusted_contents = get_file_contents_from_dir(&appsettings.tdir).unwrap();
 
     // Add text to the DB
     let mut db = PlagiarismDatabase::new(appsettings.n, appsettings.s, appsettings.metric);
     for (id, val) in untrusted_contents {
         db.add_untrusted_text(&id, &val);
     }
-    for (id, val) in trusted_contents {
-        db.add_trusted_text(&id, &val);
+
+    // Try to add trusted text if specified
+    if let Some(tdir) = &appsettings.tdir {
+        let trusted_contents = get_file_contents_from_dir(&tdir).unwrap();
+        for (id, val) in trusted_contents {
+            db.add_trusted_text(&id, &val);
+        }
     }
 
     // Run both inter-source plagiarism and external-source-based plagiarism checks
