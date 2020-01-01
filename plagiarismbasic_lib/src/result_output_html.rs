@@ -22,7 +22,7 @@ pub struct TextMaybeBold {
 }
 
 /// A plagiarism result that can be formatted by Handlebars
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct HBPlagiarismResult {
     owner_id1: TextOwnerID,
     owner_id2: TextOwnerID,
@@ -81,11 +81,21 @@ pub fn output_results(
         });
 
         // Get the actual text fragments based on the intervals we calculated
-        let t1_text = texts.get(&result.owner_id1).unwrap();
+        let t1_text = texts.get(&result.owner_id1).unwrap_or_else(|| {
+            panic!(
+                "Could not find text for owner {} in text map",
+                &result.owner_id1
+            )
+        });
         let t1_boldtext: Vec<TextMaybeBold> =
             get_boldtext_segments_from_intervals(&t1_text, &text1_intervals);
 
-        let t2_text = texts.get(&result.owner_id2).unwrap();
+        let t2_text = texts.get(&result.owner_id2).unwrap_or_else(|| {
+            panic!(
+                "Could not find text for owner {} in text map",
+                &result.owner_id2
+            )
+        });
         let t2_boldtext: Vec<TextMaybeBold> =
             get_boldtext_segments_from_intervals(&t2_text, &text2_intervals);
 
@@ -103,19 +113,30 @@ pub fn output_results(
     }
 
     let hbars = Handlebars::new();
-    let mut source_template = File::open(TEMPLATE_PATH).unwrap();
-    create_dir_all("./www/").unwrap();
-    let mut output_file = File::create("www/report.html").unwrap();
+    let mut source_template = File::open(TEMPLATE_PATH).unwrap_or_else(|_| {
+        panic!(
+            "Cannot open template path {}, check path for existence of .hbs file",
+            TEMPLATE_PATH
+        );
+    });
+    create_dir_all("./www/").expect("Cannot create ./www folder, check for permissions errors");
+    let mut output_file = File::create("www/report.html")
+        .expect("Cannot create ./www/report.html file, check for permissions errors");
 
     hbars
         .render_template_source_to_write(&mut source_template, &plag_results, &mut output_file)
-        .unwrap();
+        .unwrap_or_else(|_| {
+            panic!(
+                "Cannot render to template file without errors. JSON object: {:?}",
+                &plag_results
+            );
+        });
 
     // Open the report using the OS-preferred method if possible
     if open_html_after && cfg!(target_os = "linux") {
         Command::new("xdg-open")
             .args(&["./www/report.html"])
             .output()
-            .expect("Failed to execute xdg-open!");
+            .expect("Failed to execute xdg-open to open ./www/report.html!");
     }
 }

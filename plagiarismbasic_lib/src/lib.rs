@@ -40,12 +40,12 @@ pub struct AppSettings {
 pub fn run_plagiarism_checks(appsettings: &AppSettings) {
     // Read all file contents in both specified directories
     // Fail with panic if any file is not UTF8, or any other error
-    let untrusted_contents = get_file_contents_from_dir(&appsettings.udir).unwrap();
+    let untrusted_contents = get_file_contents_from_dir(&appsettings.udir);
 
     // Try to add ignore-text if specified. This is required early for optimization.
     let mut ignored_texts: Vec<String> = Vec::new();
     if let Some(idir) = &appsettings.idir {
-        let ignore_contents = get_file_contents_from_dir(&idir).unwrap();
+        let ignore_contents = get_file_contents_from_dir(&idir);
         for (_, val) in ignore_contents {
             ignored_texts.push(val);
         }
@@ -65,7 +65,7 @@ pub fn run_plagiarism_checks(appsettings: &AppSettings) {
 
     // Try to add trusted text if specified
     if let Some(tdir) = &appsettings.tdir {
-        let trusted_contents = get_file_contents_from_dir(&tdir).unwrap();
+        let trusted_contents = get_file_contents_from_dir(&tdir);
         for (id, val) in trusted_contents {
             db.add_trusted_text(&id, &val);
         }

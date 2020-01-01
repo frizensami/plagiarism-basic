@@ -256,7 +256,9 @@ impl PlagiarismDatabase {
             if fragment_locations.contains_key(ngram) {
                 fragment_locations
                     .get_mut(ngram)
-                    .unwrap()
+                    .unwrap_or_else(|| {
+                        panic!("Cannot find ngram {} in fragment locations even though we checked it earlier - fatal error", ngram);
+                    })
                     .push((start_location, start_location + n - 1));
             } else {
                 let mut loc_vec: Vec<FragmentLocation> = Vec::new();

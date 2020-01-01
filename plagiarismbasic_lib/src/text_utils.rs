@@ -29,8 +29,10 @@ pub fn extract_clean_word_ngrams(words: &Vec<String>, n: usize) -> Vec<String> {
 pub fn clean_text(text: &str) -> Vec<String> {
     // Compile this only once
     lazy_static! {
-        static ref REMOVE_NONALPHA: Regex = Regex::new(r"[^A-Za-z0-9 ]").unwrap();
-        static ref REMOVE_SPACES: Regex = Regex::new(r"\s+").unwrap();
+        static ref REMOVE_NONALPHA: Regex = Regex::new(r"[^A-Za-z0-9 ]")
+            .expect("Regex to remove non-alphanumeric characters could not be compiled properly!");
+        static ref REMOVE_SPACES: Regex = Regex::new(r"\s+")
+            .expect("Regex to remove redundant spaces could not be compiled properly!");
     }
     // Remove all newlines and convert to lowercase
     let mut new_text: String = text.replace('\n', " ").to_lowercase();

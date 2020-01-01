@@ -52,9 +52,17 @@ pub fn get_cli_input() -> AppSettings {
 
     // Get options for algorithm
     let matches = app.get_matches();
-    let n: usize = matches.value_of("sensitivity").unwrap().parse().unwrap();
-    let s: usize = matches.value_of("similarity").unwrap().parse().unwrap();
-    let metricarg: &str = matches.value_of("metric").unwrap();
+    let n: usize = matches
+        .value_of("sensitivity")
+        .expect("Sensitivity value was not provided!")
+        .parse()
+        .expect("Sensitivity value provided was not a an integer!");
+    let s: usize = matches
+        .value_of("similarity")
+        .expect("Similarity value was not provided!")
+        .parse()
+        .expect("Similarity value provided was not a an integer!");
+    let metricarg: &str = matches.value_of("metric").expect("Metric not provided!");
     let metric: Metric = match metricarg {
         "equal" => Metric::Equal,
         "lev" => Metric::Lev,
@@ -62,7 +70,9 @@ pub fn get_cli_input() -> AppSettings {
     };
 
     // Get info from directories
-    let udir: &str = matches.value_of("untrusted-directory").unwrap();
+    let udir: &str = matches
+        .value_of("untrusted-directory")
+        .expect("Untrusted directory not provided!");
     let tdir: Option<String> = matches.value_of("trusted-directory").map(|x| x.to_string());
     let idir: Option<String> = matches.value_of("ignore-directory").map(|x| x.to_string());
 
