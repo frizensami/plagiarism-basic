@@ -1,6 +1,6 @@
 [package]
 name = "plagiarismbasic_lib"
-version = "0.7.1"
+version = "0.8.0"
 authors = ["Sriram Sami <frizensami@gmail.com>"]
 edition = "2018"
 description = "Basic plagiarism checker written in Rust"

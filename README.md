@@ -117,7 +117,7 @@ OPTIONS:
 ```
 **Output (Basic HTML)**
 
-![HTML output example](./readme-assets/plag_v4_html.png)
+![HTML output example](./readme-assets/plag_v8_html.png)
 
 ## 10. Technical Details
 ### 10.1. Defining Plagiarism
