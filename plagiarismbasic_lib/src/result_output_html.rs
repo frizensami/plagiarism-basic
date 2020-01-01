@@ -1,5 +1,6 @@
 use crate::plagiarism_database::{PlagiarismResult, TextOwnerID};
 use crate::text_utils::get_boldtext_segments_from_intervals;
+use fs_extra;
 use gcollections::ops::*;
 use handlebars::Handlebars;
 use interval::interval_set::*;
@@ -11,6 +12,9 @@ use std::process::Command;
 
 // Used to find the templates directory
 const TEMPLATE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/templates/report.hbs");
+const ASSETS_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/");
+const OUTPUT_DIR: &str = "./www/";
+const OUTPUT_FILE_PATH: &str = "./www/report.html";
 
 // Send a set of these over for each text display
 #[derive(Serialize, PartialEq, Eq, Debug)]
@@ -112,17 +116,37 @@ pub fn output_results(
         })
     }
 
-    let hbars = Handlebars::new();
+    // Create output directory and files, copy asserts over
     let mut source_template = File::open(TEMPLATE_PATH).unwrap_or_else(|_| {
         panic!(
             "Cannot open template path {}, check path for existence of .hbs file",
             TEMPLATE_PATH
         );
     });
-    create_dir_all("./www/").expect("Cannot create ./www folder, check for permissions errors");
-    let mut output_file = File::create("www/report.html")
-        .expect("Cannot create ./www/report.html file, check for permissions errors");
+    create_dir_all(OUTPUT_DIR).unwrap_or_else(|_| {
+        panic!(
+            "Cannot create {} folder, check for permissions errors",
+            OUTPUT_DIR
+        )
+    });
+    let mut output_file = File::create(OUTPUT_FILE_PATH).unwrap_or_else(|_| {
+        panic!(
+            "Cannot create output {} file, check for permissions errors",
+            OUTPUT_FILE_PATH
+        )
+    });
+    let mut copy_options = fs_extra::dir::CopyOptions::new();
+    copy_options.overwrite = true;
+    fs_extra::dir::copy(ASSETS_PATH, OUTPUT_DIR, &copy_options)
+        .unwrap_or_else(|_| {
+            panic!(
+                "Failed to copy assets from {} to {}",
+                ASSETS_PATH, OUTPUT_DIR
+            )
+        });
 
+    // Output report to html
+    let hbars = Handlebars::new();
     hbars
         .render_template_source_to_write(&mut source_template, &plag_results, &mut output_file)
         .unwrap_or_else(|_| {

@@ -28,6 +28,8 @@ intervallum = "1.3.0"
 gcollections = "1.4.0"
 # Compiling regexes just once
 lazy_static = "1.4.0"
+# Copy folder contents to another folder
+fs_extra = "1.1.0"
 
 [dev-dependencies]
 criterion = "0.3"
