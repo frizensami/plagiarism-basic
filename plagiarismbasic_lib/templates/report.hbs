@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="en">
 
 <head>
@@ -14,82 +13,62 @@
 </head>
 
 <body>
-    <h1 style="text-align: center"> Plagiarism Report </h1>
-    <h3 style="text-align: center"> Reports are sorted in decreasing order of level of plagiarism </h3>
-
-    <p style="text-align: center"> Note that the texts are stripped of punctuation and special characters. These are the strings that the plagiarism comparison metrics use directly. </p>
-    <!-- <script src="js/scripts.js"></script> -->
-    {{#each this}}
-    <hr>
-    <h2 style="text-align: center"> Plagiarism report between <u> {{#if this.trusted_owner1}} trusted {{else}} untrusted {{/if}} {{this.owner_id1}} </u> and <u> untrusted {{this.owner_id2}} </u> </h2>
-
-
-    <h3 style="text-align: center"> Test metric: {{#if this.equal_fragments}} Equality {{else}} Levenshtein distance {{/if}} between groups of words </h3>
-
-    <p style="text-align: center"> The original texts are shown side-by-side. Any text that is <strong> in bold </strong> has been detected as plagiarized (or plagiarized from) </p>
-
-    <table border="1px solid black" align="center" table-layout="fixed">
-        <thead>
-            <tr>
-                <td style="text-align: center"> <strong> [{{#if this.trusted_owner1}} trusted {{else}} untrusted {{/if}}]  {{this.owner_id1}} </strong><br> (Plagarism amount: <strong> {{this.text1_plag_percent}}% </strong> out of all words) </td>
-                <td style="text-align: center"> <strong> [ untrusted ] {{this.owner_id2}} </strong> <br> (Plagarism amount: <strong> {{this.text2_plag_percent}}% </strong> out of all words) </td>
-                <!--
-                {{#if this.equal_fragments}}
-                  <td style="text-align: center"> <strong> {{this.owner_id1}} </strong> vs <strong> {{this.owner_id2}} </strong> </td>
-                {{else}}
-
-                {{/if}}
-                -->
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="width: 50%" valign="top"> 
-                    {{#each this.text_display1}}
-                        {{#if this.is_bold}}
-                            <strong>
-                        {{/if}}
-
-                        {{this.text}}
-
-                        {{#if this.is_bold}}
-                            </strong>
-                        {{/if}}
-                    {{/each}}
-                </td>
-                <td style="width: 50%" valign="top">  
-                        {{#each this.text_display2}}
-                        {{#if this.is_bold}}
-                            <strong>
-                        {{/if}}
-
-                        {{this.text}}
-
-                        {{#if this.is_bold}}
-                            </strong>
-                        {{/if}}
-                    {{/each}}
-                </td>
-            <tr>
-            <!--
-            {{#if this.equal_fragments}}
-            {{#each this.matching_fragments}}
-            <tr> <td> {{this.0}} </td> </tr>
-            {{/each}}
-
-            {{else}}
-            {{#each this.matching_fragments}}
-            <tr>
-                <td> {{this.0}} </td>
-                <td> {{this.1}} </td>
-            <tr>
-            {{/each}}
-
-            {{/if}}
-            -->
-        </tbody>
-    </table>
-    {{/each}}
+    <div class="ui hidden divider"></div>
+    <div class="ui container">
+        <h1 class="ui center aligned header"> Plagiarism Reports </h1>
+        <h3 class="ui center aligned header"> Reports are sorted in decreasing order of level of plagiarism </h3>
+        <p style="text-align: center"> Note that the texts are stripped of punctuation and special characters. These are
+            the strings that the plagiarism comparison metrics use directly. </p>
+        <!-- <script src="js/scripts.js"></script> -->
+        {{#each this}}
+            <div class="ui divider"> </div>
+            <h2 style="text-align: center"> Plagiarism report between {{#if this.trusted_owner1}} trusted {{else}}
+                    untrusted {{/if}} <u> {{this.owner_id1}} </u> and untrusted <u> {{this.owner_id2}} </u> </h2>
+            <h3 style="text-align: center"> Testing methodology: {{#if this.equal_fragments}} Equality {{else}}
+                    Levenshtein distance {{/if}} between groups of words </h3>
+            <p style="text-align: center"> The original texts are shown side-by-side. Any text that is <strong> <u> bold
+                        and underlined </u> </strong> has been detected as plagiarized (or plagiarized from) </p>
+            <table class="ui celled table">
+                <!--border="1px solid black" align="center" table-layout="fixed"> -->
+                <thead>
+                    <tr>
+                        <th style="text-align: center"> <strong> {{this.owner_id1}}
+                                ({{#if this.trusted_owner1}}trusted{{else}}untrusted{{/if}}) </strong><br> (Plagiarism
+                            extent: <strong> {{this.text1_plag_percent}}% </strong> out of all words) </th>
+                        <th style="text-align: center"> <strong> {{this.owner_id2}} (untrusted) </strong> <br>
+                            (Plagiarism extent: <strong> {{this.text2_plag_percent}}% </strong> out of all words) </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="width: 50%" valign="top" {{#if this.trusted_owner1}} class="positive" {{else}}
+                            class="negative" {{/if}}>
+                            {{#each this.text_display1}}
+                                {{#if this.is_bold}}
+                                    <strong> <u>
+                                {{/if}}
+                                {{~this.text~}}
+                                {{#if this.is_bold}}
+                                    </u> </strong>
+                                {{/if}}
+                            {{/each}}
+                        </td>
+                        <td style="width: 50%" valign="top" class="negative">
+                            {{#each this.text_display2}}
+                                {{#if this.is_bold}}
+                                    <strong> <u>
+                                {{/if}}
+                                {{~this.text~}}
+                                {{#if this.is_bold}}
+                                    </u> </strong>
+                                {{/if}}
+                            {{/each}}
+                        </td>
+                    <tr>
+                </tbody>
+            </table>
+        {{/each}}
+    </div>
 </body>
 
 </html>

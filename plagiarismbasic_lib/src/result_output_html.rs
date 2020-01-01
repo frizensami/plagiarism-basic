@@ -137,13 +137,12 @@ pub fn output_results(
     });
     let mut copy_options = fs_extra::dir::CopyOptions::new();
     copy_options.overwrite = true;
-    fs_extra::dir::copy(ASSETS_PATH, OUTPUT_DIR, &copy_options)
-        .unwrap_or_else(|_| {
-            panic!(
-                "Failed to copy assets from {} to {}",
-                ASSETS_PATH, OUTPUT_DIR
-            )
-        });
+    fs_extra::dir::copy(ASSETS_PATH, OUTPUT_DIR, &copy_options).unwrap_or_else(|_| {
+        panic!(
+            "Failed to copy assets from {} to {}",
+            ASSETS_PATH, OUTPUT_DIR
+        )
+    });
 
     // Output report to html
     let hbars = Handlebars::new();
