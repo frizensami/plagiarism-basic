@@ -34,7 +34,7 @@ pub fn print_results_t(results: &mut Vec<PlagiarismResult>) {
         );
         print_result(result);
     }
-    println!("\n\t**** END UNTRUSTED COMPARISON REPORT **** \n");
+    println!("\n\t**** END TRUSTED COMPARISON REPORT **** \n");
 }
 
 fn print_result(result: &PlagiarismResult) {
