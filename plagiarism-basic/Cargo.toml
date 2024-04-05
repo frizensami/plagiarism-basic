@@ -1,6 +1,6 @@
 [package]
 name = "plagiarism-basic"
-version = "1.1.0"
+version = "1.2.0"
 description = "Basic plagiarism checker written in Rust"
 authors = ["Sriram Sami <frizensami@gmail.com>"]
 edition = "2018"
@@ -19,4 +19,4 @@ maintenance = { status = "actively-developed" }
 # Argument parsing
 clap = "2.33"
 # Our own lib
-plagiarismbasic_lib = { version = "1.1.0", path = "../plagiarismbasic_lib"}
+plagiarismbasic_lib = { version = "1.2.0", path = "../plagiarismbasic_lib"}
