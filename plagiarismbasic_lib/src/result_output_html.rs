@@ -94,7 +94,7 @@ pub fn output_results(
         let t1_boldtext: Vec<TextMaybeBold> =
             get_boldtext_segments_from_intervals(&t1_text, &text1_intervals);
 
-        let t2_text = texts.get(&result.owner_id2).unwrap_or_else(|| {
+        let t2_text: &Vec<String> = texts.get(&result.owner_id2).unwrap_or_else(|| {
             panic!(
                 "Could not find text for owner {} in text map",
                 &result.owner_id2

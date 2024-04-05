@@ -4,6 +4,7 @@ use crate::Metric;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
+use rayon::prelude::*;
 
 pub type TextOwnerID = String;
 /// (start index (inclusive), end index (exclusive))
@@ -296,14 +297,19 @@ impl PlagiarismDatabase {
         metric: Metric,
         against: &TextEntry,
     ) -> Vec<(String, String)> {
-        let mut results: Vec<(String, String)> = Vec::new();
-        for source_frag in source.fragments.iter() {
-            for against_frag in against.fragments.iter() {
-                if is_plagiarised(source_frag, against_frag, metric, self.s) {
-                    results.push((source_frag.to_string(), against_frag.to_string()));
-                }
-            }
-        }
+        let results: Vec<(String, String)> = source
+            .fragments
+            .par_iter()
+            .flat_map(|source_frag| {
+                against.fragments.par_iter().filter_map(move |against_frag| {
+                    if is_plagiarised(source_frag, against_frag, metric, self.s) {
+                        Some((source_frag.to_string(), against_frag.to_string()))
+                    } else {
+                        None
+                    }
+                })
+            })
+            .collect();
         results
     }
 }

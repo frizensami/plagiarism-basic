@@ -9,22 +9,23 @@ Online plagiarism detection tools usually come with a few constraints. It could 
 ## 2. Table of Contents
 <!-- TOC depthFrom:2 -->
 
-- [1. Motivation](#1-motivation)
-- [2. Table of Contents](#2-table-of-contents)
-- [3. Philosophy](#3-philosophy)
-- [4. Definitions](#4-definitions)
-- [5. Project Objectives](#5-project-objectives)
+- [Basic Plagiarism Detection](#basic-plagiarism-detection)
+  - [1. Motivation](#1-motivation)
+  - [2. Table of Contents](#2-table-of-contents)
+  - [3. Philosophy](#3-philosophy)
+  - [4. Definitions](#4-definitions)
+  - [5. Project Objectives](#5-project-objectives)
     - [5.1. Hard Objectives](#51-hard-objectives)
     - [5.2. Soft (Optimization) Objectives](#52-soft-optimization-objectives)
     - [5.3. Anti-Objectives](#53-anti-objectives)
-- [6. Project Status](#6-project-status)
-- [7. Installation Options](#7-installation-options)
+  - [6. Project Status](#6-project-status)
+  - [7. Installation Options](#7-installation-options)
     - [7.1. Binary Release](#71-binary-release)
     - [7.2. Cargo Install](#72-cargo-install)
     - [7.3. Building from source](#73-building-from-source)
-- [8. Usage](#8-usage)
-- [9. Example output](#9-example-output)
-- [10. Technical Details](#10-technical-details)
+  - [8. Usage](#8-usage)
+  - [9. Examples](#9-examples)
+  - [10. Technical Details](#10-technical-details)
     - [10.1. Defining Plagiarism](#101-defining-plagiarism)
     - [10.2. Choosing n, s and M](#102-choosing-n-s-and-m)
 
@@ -51,7 +52,7 @@ This tool is really only to catch amateur attempts at plagiarism. Whatever your 
 
 ## 6. Project Status
 - All options are usable in the executable, and the `equal` metric is quite fast at detecting copy-paste plagiarism of a few words.
-- The `lev` metric is too slow for large datasets, but promises more fine-grained control over how different two phrases can be.
+- The `lev` metric is faster now by parallelizing using `rayon` and promises more fine-grained control over how different two phrases can be. However, it might be slow for very large datasets.
 - The current output format is both in HTML and in the terminal. In the HTML output, both texts are displayed side-by-side, with all detected plagiarized phrases being highlighted in bold. The percent of plagiarism detected (# plagiarized words / all words * 100%) is also indicated for each source pair. The goal is for all of this to be color-coded, which is a project priority.
 
 ## 7. Installation Options
@@ -110,11 +111,24 @@ OPTIONS:
     -u, --untrusted <untrusted-directory>    Sets the directory containing untrusted text files. Each file will be
                                              treated as a separate submission by a separate person.
 ```
-## 9. Example output
-**Command:**
+## 9. Examples
+**Exact string matching:**
 ```
-./plagiarism-basic -t testfiles/cs-corpus/t/ -u testfiles/cs-corpus/ut/ -m equal -n 10 -s 0 --openhtml --cli --html
+./plagiarism-basic -t testfiles/cs-corpus/t/ -u ./testfiles/cs-corpus/ut/ -m equal -n 10 -s 0 --openhtml --cli --html
 ```
+
+**Levenshtein distance matching:**
+```
+./plagiarism-basic -t testfiles/cs-corpus/t/ -u ./testfiles/cs-corpus/ut/ -m lev -n 5 -s 1 --openhtml --cli --html
+```
+
+**With Cargo from this folder:**
+```
+cargo run --release -- -t plagiarismbasic_lib/testfiles/cs-corpus/t/ -u plagiarismbasic_lib/testfiles/cs-corpus/ut/ -m equal -n 10 -s 0 --openhtml --cli --html
+```
+
+
+
 **Output (Basic HTML)**
 
 ![HTML output example](./readme-assets/plag_v8_html.png)
@@ -139,4 +153,4 @@ Formally:
 - `s` is a user-chosen value to indicate **how similar** the strings have to be before being considered for plagiarism. This follows the opposite false positive/negative trend as `n` (too high = too many false positive and vice versa), but only affects results when a non `equal` metric is used.
 - `M` is the **metric** used to evaluate the strings for similarity. They can be one of the following
     - `equal`: checks if the strings are equal, ignores `s` value. Uses hashed set intersections, very fast.
-    - `lev`: uses the Levenshtein distance between the words, uses the `s` value. Compares between all combinations of string fragments, very slow at the moment.
+    - `lev`: uses the Levenshtein distance between the words, uses the `s` value. Compares between all combinations of string fragments.

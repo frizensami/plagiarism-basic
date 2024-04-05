@@ -450,6 +450,7 @@ dependencies = [
  "handlebars",
  "intervallum",
  "lazy_static",
+ "rayon",
  "regex",
  "serde",
  "serde_json",
