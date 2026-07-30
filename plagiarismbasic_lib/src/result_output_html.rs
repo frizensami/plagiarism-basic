@@ -1,20 +1,33 @@
 use crate::plagiarism_database::{PlagiarismResult, TextOwnerID};
 use crate::text_utils::get_boldtext_segments_from_intervals;
-use fs_extra;
 use gcollections::ops::*;
 use handlebars::Handlebars;
 use interval::interval_set::*;
 use serde::Serialize;
 use std::collections::HashMap;
-use std::fs::create_dir_all;
-use std::fs::File;
+use std::fs::{create_dir_all, write, File};
+use std::path::Path;
 use std::process::Command;
 
-// Used to find the templates directory
-const TEMPLATE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/templates/report.hbs");
-const ASSETS_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/");
+// Embed the report and its assets so HTML output also works from a standalone binary.
+const REPORT_TEMPLATE: &str = include_str!("../templates/report.hbs");
+const REPORT_ASSETS: &[(&str, &[u8])] = &[
+    ("jquery.min.js", include_bytes!("../assets/jquery.min.js")),
+    ("semantic.min.js", include_bytes!("../assets/semantic.min.js")),
+    ("styles.css", include_bytes!("../assets/styles.css")),
+    ("semantic.min.css", include_bytes!("../assets/semantic.min.css")),
+];
 const OUTPUT_DIR: &str = "./www/";
 const OUTPUT_FILE_PATH: &str = "./www/report.html";
+
+fn write_report_assets(output_dir: &Path) -> std::io::Result<()> {
+    let assets_dir = output_dir.join("assets");
+    create_dir_all(&assets_dir)?;
+    for (filename, contents) in REPORT_ASSETS {
+        write(assets_dir.join(filename), contents)?;
+    }
+    Ok(())
+}
 
 // Send a set of these over for each text display
 #[derive(Serialize, PartialEq, Eq, Debug)]
@@ -116,13 +129,8 @@ pub fn output_results(
         })
     }
 
-    // Create output directory and files, copy asserts over
-    let mut source_template = File::open(TEMPLATE_PATH).unwrap_or_else(|_| {
-        panic!(
-            "Cannot open template path {}, check path for existence of .hbs file",
-            TEMPLATE_PATH
-        );
-    });
+    // Create output directory and files, and write the embedded assets.
+    let mut source_template = REPORT_TEMPLATE.as_bytes();
     create_dir_all(OUTPUT_DIR).unwrap_or_else(|_| {
         panic!(
             "Cannot create {} folder, check for permissions errors",
@@ -135,13 +143,8 @@ pub fn output_results(
             OUTPUT_FILE_PATH
         )
     });
-    let mut copy_options = fs_extra::dir::CopyOptions::new();
-    copy_options.overwrite = true;
-    fs_extra::dir::copy(ASSETS_PATH, OUTPUT_DIR, &copy_options).unwrap_or_else(|_| {
-        panic!(
-            "Failed to copy assets from {} to {}",
-            ASSETS_PATH, OUTPUT_DIR
-        )
+    write_report_assets(Path::new(OUTPUT_DIR)).unwrap_or_else(|_| {
+        panic!("Failed to write embedded report assets to {}", OUTPUT_DIR)
     });
 
     // Output report to html
@@ -161,5 +164,29 @@ pub fn output_results(
             .args(&["./www/report.html"])
             .output()
             .expect("Failed to execute xdg-open to open ./www/report.html!");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{write_report_assets, REPORT_ASSETS, REPORT_TEMPLATE};
+    use std::fs;
+
+    #[test]
+    fn report_dependencies_are_embedded_and_can_be_written() {
+        assert!(REPORT_TEMPLATE.contains("<title>Plagiarism Report</title>"));
+
+        let output_dir =
+            std::env::temp_dir().join(format!("plagiarism-basic-html-{}", std::process::id()));
+        if output_dir.exists() {
+            fs::remove_dir_all(&output_dir).unwrap();
+        }
+
+        write_report_assets(&output_dir).unwrap();
+        for (filename, contents) in REPORT_ASSETS {
+            assert_eq!(fs::read(output_dir.join("assets").join(filename)).unwrap(), *contents);
+        }
+
+        fs::remove_dir_all(output_dir).unwrap();
     }
 }
